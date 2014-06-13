@@ -23,7 +23,8 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         AccessTokenExpiredEmail,
         AccessTokenExpiredEmailForPipelineUser,
         TrialPeriodExpiredEmail,
-        OFunnelServerError
+        OFunnelServerError,
+        NetworkExpandStatisticsEmail
     }
 
     /// <summary>
@@ -37,6 +38,9 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         private string networkUpdateSection = string.Empty;
         private string positionUpdateSection = string.Empty;
         private StringBuilder twitterAllLeadSection = new StringBuilder();
+
+        private string networkExpandForLocationSection = string.Empty;
+        private string networkExpandForSubIndustrySection = string.Empty;
 
         /// <summary>
         /// This method sent email to all Ofunnel users.
@@ -219,6 +223,12 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                             emailUserName = Config.EmailUserName;
 
                             htmlView = this.CreateAlternateViewForOFunnelServerErrorEmail();
+                            break;
+
+                        case EmailType.NetworkExpandStatisticsEmail:
+                            emailUserName = Config.EmailUserName;
+
+                            htmlView = this.CreateAlternateViewFornetworkExpandStatisticsEmail();
                             break;
                     }
 
@@ -976,6 +986,142 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
             return isTwitterLeadFound;
         }
 
+        /// <summary>
+        /// This method creates Network Expand Statistics Email Templates.
+        /// </summary>
+        /// <param name="openRequestDetails"></param>
+        public bool CreateNetworkExpandStatisticsForEmailTemplate(NetworkExpandStatistics networkExpandStatistics)
+        {
+            bool isNetworkExpandStatisticsFound = false;
+
+            string networkExpandForLocationSectionTemplate = string.Empty;
+            string networkExpandForSubIndustrySectionTemplate = string.Empty;
+
+            if (networkExpandStatistics.locationNetworkUpdates != null && networkExpandStatistics.locationNetworkUpdates.Length > 0)
+            {
+                foreach (LocationNetworkUpdates locationNetworkUpdates in networkExpandStatistics.locationNetworkUpdates)
+                {
+                    networkExpandForLocationSectionTemplate = Constants.NetworkExpandForLocation;
+
+                    string locationName = locationNetworkUpdates.locationName;
+                    string locationCount = locationNetworkUpdates.locationUpdateCount;
+
+                    networkExpandForLocationSectionTemplate = networkExpandForLocationSectionTemplate.Replace(":LOCATION_NAME", locationName);
+                    networkExpandForLocationSectionTemplate = networkExpandForLocationSectionTemplate.Replace(":LOCATION_COUNT", locationCount);
+
+                    this.networkExpandForLocationSection += networkExpandForLocationSectionTemplate;
+                }
+                isNetworkExpandStatisticsFound = true;
+            }
+            else
+            {
+                networkExpandForLocationSectionTemplate = Constants.NoNetworkExpandForLocation;
+
+                networkExpandForLocationSectionTemplate = networkExpandForLocationSectionTemplate.Replace(":NO_LOCATION_NETWORKEXPAND", "No Location Updates in last 7 days.");
+
+                this.networkExpandForLocationSection += networkExpandForLocationSectionTemplate;
+            }
+
+
+
+            if (networkExpandStatistics.subIndustryNetworkUpdates != null && networkExpandStatistics.subIndustryNetworkUpdates.Length > 0)
+            {
+                foreach (SubIndustryNetworkUpdates subIndustryNetworkUpdates in networkExpandStatistics.subIndustryNetworkUpdates)
+                {
+                    networkExpandForSubIndustrySectionTemplate = Constants.NetworkExpandForSubIndustry;
+
+                    string subindustryName = subIndustryNetworkUpdates.subindustryName;
+                    string subindustryUpdateCount = subIndustryNetworkUpdates.subindustryUpdateCount;
+
+                    networkExpandForSubIndustrySectionTemplate = networkExpandForSubIndustrySectionTemplate.Replace(":SUBINDUSTRY_NAME", subindustryName);
+                    networkExpandForSubIndustrySectionTemplate = networkExpandForSubIndustrySectionTemplate.Replace(":SUBINDUSTRY_COUNT", subindustryUpdateCount);
+
+                    this.networkExpandForSubIndustrySection += networkExpandForSubIndustrySectionTemplate;
+                }
+
+                isNetworkExpandStatisticsFound = true;
+            }
+            else
+            {
+                networkExpandForSubIndustrySectionTemplate = Constants.NetworkExpandForSubIndustry;
+
+                networkExpandForSubIndustrySectionTemplate = networkExpandForSubIndustrySectionTemplate.Replace(":NO_SUBINDUSTRY_NETWORKEXPAND", "No Sub Industry Updates in last 7 days.");
+
+                this.networkExpandForSubIndustrySection += networkExpandForSubIndustrySectionTemplate;
+            }
+
+            return isNetworkExpandStatisticsFound;
+        }
+
+        /// <summary>
+        /// This method creates alternate view for network expand statistics Email.
+        /// </summary>
+        /// <returns>Alternate view for network expand statistics Email.</returns>
+        private AlternateView CreateAlternateViewFornetworkExpandStatisticsEmail()
+        {
+            var appPath = HelperMethods.GetExeDir();
+
+            //Get the html file for request address
+            var bodyFile = Path.Combine(appPath, @"EmailTemplates\NetworkExpandStatisticsEmailTemplate.html");
+            //Read contents of HTML file
+            StreamReader dataStreamReader = File.OpenText(bodyFile);
+
+            string mailBody = dataStreamReader.ReadToEnd();
+
+            dataStreamReader.Close();
+
+            mailBody = mailBody.Replace(":LOCATION_NETWORK_EXPAND_STATISTICS", this.networkExpandForLocationSection);
+            mailBody = mailBody.Replace(":SUBINDUSTRY_NETWORK_EXPAND_STATISTICS", this.networkExpandForSubIndustrySection);
+
+
+            string unsubscribeFromAlertsUrl = Config.UnsubscribeFromAlertsUrl;
+
+            unsubscribeFromAlertsUrl = unsubscribeFromAlertsUrl.Replace(":USER_ID", nameValues["userId"]);
+
+            mailBody = mailBody.Replace(":UNSUBSCRIBE_LINK", unsubscribeFromAlertsUrl);
+
+            AlternateView htmlView = AlternateView.CreateAlternateViewFromString(mailBody, null, "text/html");
+
+            LinkedResource voteNowLogoImagelink = new LinkedResource(appPath + @"\Assets\votenow-icon.png", "image/png");
+            voteNowLogoImagelink.ContentId = "voteNowLogo";
+            voteNowLogoImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(voteNowLogoImagelink);
+
+            LinkedResource emailLogoImagelink = new LinkedResource(appPath + @"\Assets\logo_email.jpg", "image/jpg");
+            emailLogoImagelink.ContentId = "emailLogo";
+            emailLogoImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(emailLogoImagelink);
+
+
+            LinkedResource userImageForYourConnection = new LinkedResource(appPath + @"\Assets\user-photo.jpg", "image/jpg");
+            userImageForYourConnection.ContentId = "yourConnectionProfilePicUrl";
+            userImageForYourConnection.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(userImageForYourConnection);
+
+
+            LinkedResource userImageForConnectedTo = new LinkedResource(appPath + @"\Assets\user-photo.jpg", "image/jpg");
+            userImageForConnectedTo.ContentId = "connectedToProfilePicUrl";
+            userImageForConnectedTo.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(userImageForConnectedTo);
+
+
+            LinkedResource faceBookiconImagelink = new LinkedResource(appPath + @"\Assets\f-icon.jpg", "image/jpg");
+            faceBookiconImagelink.ContentId = "faceBookicon";
+            faceBookiconImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(faceBookiconImagelink);
+
+            LinkedResource twitterIconImagelink = new LinkedResource(appPath + @"\Assets\t-icon.jpg", "image/jpg");
+            twitterIconImagelink.ContentId = "twitterIcon";
+            twitterIconImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(twitterIconImagelink);
+
+            LinkedResource linkedInIconImagelink = new LinkedResource(appPath + @"\Assets\in-icon.jpg", "image/jpg");
+            linkedInIconImagelink.ContentId = "linkedInIcon";
+            linkedInIconImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(linkedInIconImagelink);
+
+            return htmlView;
+        }
         #endregion
 
         # region AlternetView for access token expired email

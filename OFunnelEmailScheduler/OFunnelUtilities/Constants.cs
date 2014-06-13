@@ -21,6 +21,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         public const string NetwrokUpdateFollowUpAlertEmailSubject = "OFunnel Connection Alerts - Weekly Follow Up";
         public const string NetwrokUpdateAlertEmailSubjectForPipelineUser = "Pipeline Connection Alerts.";
         public const string TwitterLeadAlertEmailSubject = "OFunnel Twitter Lead Alert.";
+        public const string NetworkExpandStatisticsEmailSubject = "OFunnel Network Updates in Last 7 days.";
 
         public const string AccessTokenExpiredEmailSubject = "OFunnel Connection Alerts.";
         public const string AccessTokenExpiredEmailSubjectForPipelineUser = "Pipeline Connection Alerts.";
@@ -421,6 +422,36 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                                                         "<td colspan='2'>"+
                                                             "<span style='font-size: 15px; line-height:20px; color: #ff5d00; text-align: justify; font-family:Arial, Helvetica, sans-serif;'><strong>Leads&nbsp;from&nbsp;Twitter!</strong></span><br />" +
                                                         "</td>"+
+                                                    "</tr>";
+
+        public const string NetworkExpandForLocation = "<tr>"+
+                                                        "<td style='height:40px; border-bottom: 1px solid #AEAEAE; width:80%;'>"+
+                                                            "<span style='color: #000000; margin-left:8px; text-decoration: none; font-size: 15px;'>:LOCATION_NAME</span>" +
+                                                        "</td>"+
+                                                        "<td style='height:40px; border-bottom: 1px solid #AEAEAE; width:20%;'>"+
+                                                            "<span style='color: #000000; margin-left:8px; text-decoration: none; font-size: 15px;'>:LOCATION_COUNT</span>" +
+                                                        "</td>"+
+                                                    "</tr>";
+
+        public const string NetworkExpandForSubIndustry = "<tr>" +
+                                                        "<td style='height:40px; border-bottom: 1px solid #AEAEAE; width:80%;'>" +
+                                                            "<span style='color: #000000; margin-left:8px; text-decoration: none; font-size: 15px;'>:SUBINDUSTRY_NAME</span>" +
+                                                        "</td>" +
+                                                        "<td style='height:40px; border-bottom: 1px solid #AEAEAE; width:20%;'>"+
+                                                            "<span style='color: #000000; margin-left:8px; text-decoration: none; font-size: 15px;'>:SUBINDUSTRY_COUNT</span>" +
+                                                         "</td>" +
+                                                    "</tr>";
+
+        public const string NoNetworkExpandForLocation = "<tr>" +
+                                                        "<td style='height:40px; border-bottom: 1px solid #AEAEAE; width:80%;' colspan='2'>" +
+                                                            "<span style='color: #000000; margin-left:8px; text-decoration: none; font-size: 15px;'>:NO_LOCATION_NETWORKEXPAND</span>" +
+                                                        "</td>" +
+                                                    "</tr>";
+
+        public const string NoNetworkExpandForSubIndustry = "<tr>" +
+                                                        "<td style='height:40px; border-bottom: 1px solid #AEAEAE; width:80%;' colspan='2'>" +
+                                                            "<span style='color: #000000; margin-left:8px; text-decoration: none; font-size: 15px;'>:NO_SUBINDUSTRY_NETWORKEXPAND</span>" +
+                                                        "</td>" +
                                                     "</tr>";
 
     }

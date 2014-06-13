@@ -54,6 +54,12 @@ namespace OFunnelEmailScheduler.OFunnelDbLogic
             return BusinessLogic.Exec_Dataset_string(sql);
         }
 
+        public DataSet GetOFunnelUsersForNetworkExpandStatistics()
+        {
+            this.sql = "OFunnel_NetworkExpandDetails_GetOFunnelUsersForNetworkExpandStatistics ";
+            return BusinessLogic.Exec_Dataset_string(sql);
+        }
+
         public DataSet GetAllOFunnelUsersForAccessTokenExpired()
         {
             this.sql = "OFunnel_TargetAccount_GetAllOFunnelUserForAccessTokenExpired ";
@@ -69,6 +75,12 @@ namespace OFunnelEmailScheduler.OFunnelDbLogic
         public DataSet GetNetworkUpdateDetailForUserId(string qry)
         {
             this.sql = "OFunnel_UpdatedNetworkConnections_GetNetworkUpdateDetailForUserId " + qry;
+            return BusinessLogic.Exec_Dataset_string(sql);
+        }
+
+        public DataSet GetNetworkExpandDetailsForLocationAndIndustryForUserId(string qry)
+        {
+            this.sql = "OFunnel_NetworkExpandDetails_GetNetworkExpandDetailsForLocationAndIndustryForUserId " + qry;
             return BusinessLogic.Exec_Dataset_string(sql);
         }
 

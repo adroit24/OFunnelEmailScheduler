@@ -30,6 +30,7 @@ namespace OFunnelEmailScheduler
         Timer similarCompaniesTimer;
         Timer updateCompaniesSchedulerTimer;
         Timer followUpNetworkUpdateTimer;
+        Timer statisticsEmailSchedulerTimer;
 
         private System.Timers.Timer checkServerStatusTimer;
         private System.Timers.Timer sendPushNotificationTimer;
@@ -42,6 +43,7 @@ namespace OFunnelEmailScheduler
         private int numberOfThreadsToUpdateCompanyDetailsNotYetCompleted = -1;
         private int numberOfThreadsToSendPushNotificationNotYetCompleted = -1;
         private int numberOfThreadsForFollowupNetworkUpdateEmailNotYetCompleted = -1;
+        private int numberOfThreadsForNetworkExpandStatisticsEmailNotYetCompleted = -1;
         
         private ManualResetEvent doneEvent = new ManualResetEvent(false);
         private ManualResetEvent doneEventForSimilarCompanies = new ManualResetEvent(false);
@@ -51,7 +53,8 @@ namespace OFunnelEmailScheduler
         private ManualResetEvent doneEventToUpdateCompanies = new ManualResetEvent(false);
         private ManualResetEvent doneEventToSendPushNotification = new ManualResetEvent(false);
         private ManualResetEvent doneEventForFollowUpNetworkUpdateEmail = new ManualResetEvent(false);
-
+        private ManualResetEvent doneEventForNetworkExpandStatisticsEmail = new ManualResetEvent(false);
+        
         private AllArticles allArticles = null;
 
         /// <summary>
@@ -124,6 +127,11 @@ namespace OFunnelEmailScheduler
             DateTime todayFollowupsEmailTime = now.Date.AddHours(Config.FollowupEmailSendTime);
             DateTime nextFollowupsEmailSendTime = now <= todayFollowupsEmailTime ? todayFollowupsEmailTime : todayFollowupsEmailTime.AddHours(Config.FollowupEmailTimerIntervalInHours);
             followUpNetworkUpdateTimer = new Timer(RequestFollowupsEmailSchedulerTimeElapsed, null, nextFollowupsEmailSendTime - DateTime.Now, TimeSpan.FromHours(Config.FollowupEmailTimerIntervalInHours));
+
+            // weekly network expand statistics email timer.
+            DateTime todayStatisticsEmailSendTime = now.Date.AddHours(Config.NetworkStatisticsEmailTime);
+            DateTime nextStatisticsEmailSendTime = now <= todayStatisticsEmailSendTime ? todayStatisticsEmailSendTime : todayStatisticsEmailSendTime.AddHours(Config.NetworkStatisticsTimerIntervalInHours);
+            statisticsEmailSchedulerTimer = new Timer(NetworkExpandStatisticsEmailSchedulerTimeElapsed, null, nextStatisticsEmailSendTime - DateTime.Now, TimeSpan.FromHours(Config.NetworkStatisticsTimerIntervalInHours));
 
             /////////////////////////////////////////////////////////
             //// Check Server Status
@@ -2526,6 +2534,297 @@ namespace OFunnelEmailScheduler
                 this.SendEmailToOFunnelUsersForFollowupNetworkUpdate();   
             }
         }
+
+        /// <summary>
+        /// Network expand statistics Email scheduler time elapsed callback.
+        /// </summary>
+        /// <param name="sender">Sender of event.</param>
+        /// <param name="e">Event arguments</param>
+        private void NetworkExpandStatisticsEmailSchedulerTimeElapsed(object sender)
+        {
+            DayOfWeek dayOfWeek = DateTime.Now.DayOfWeek;
+
+            // To send email on Thursday only.
+            if ((DayOfWeek.Thursday == dayOfWeek))
+            {
+                this.SendEmailToOFunnelUsersForNetworkExpandStatistics();
+            }
+        }
+
+
+        /// <summary>
+        /// Method to send the Network Expand Statistics email.
+        /// </summary>
+        private void SendEmailToOFunnelUsersForNetworkExpandStatistics()
+        {
+            HelperMethods.AddLogs("Enter in SendEmailToOFunnelUsersForNetworkExpandStatistics.");
+
+            try
+            {
+                OFunnelUsers oFunnelUsers = this.GetAllOFunnelUsersForNetworkExpandStatistics();
+
+                if (oFunnelUsers != null && oFunnelUsers.oFunnelUser != null && oFunnelUsers.oFunnelUser.Length > 0)
+                {
+                    this.numberOfThreadsForNetworkExpandStatisticsEmailNotYetCompleted = oFunnelUsers.oFunnelUser.Length;
+
+                    foreach (OFunnelUser oFunnelUser in oFunnelUsers.oFunnelUser)
+                    {
+                        if (oFunnelUser.userId != -1)
+                        {
+                            ThreadPool.QueueUserWorkItem(new WaitCallback(ThreadPoolCallbackToSendNetworkExpandStatisticsEmail), oFunnelUser);
+                        }
+                        else
+                        {
+                            this.numberOfThreadsForNetworkExpandStatisticsEmailNotYetCompleted--;
+                        }
+                    }
+
+                    this.doneEventForFollowUpNetworkUpdateEmail.WaitOne();
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperMethods.AddLogs(string.Format("SendEmailToOFunnelUsersForNetworkExpandStatistics : Failed to send Network Expand Statistics emails for all users. \n\n", ex.Message));
+            }
+
+            HelperMethods.AddLogs("Exit from SendEmailToOFunnelUsersForNetworkExpandStatistics.");
+        }
+
+
+        /// <summary>
+        /// Thread pool callback to send email for Network Expand Statistics.
+        /// </summary>
+        /// <param name="threadContext">threadContext</param>
+        public void ThreadPoolCallbackToSendNetworkExpandStatisticsEmail(Object threadContext)
+        {
+            string userId = string.Empty;
+
+            try
+            {
+                OFunnelUser oFunnelUser = threadContext as OFunnelUser;
+                userId = Convert.ToString(oFunnelUser.userId);
+                string toEmail = "ravi05cse@gmail.com";//oFunnelUser.email;
+                string userName = oFunnelUser.firstName + " " + oFunnelUser.lastName;
+
+                HelperMethods.AddLogs(string.Format("Enter in ThreadPoolCallbackToSendNetworkExpandStatisticsEmail for userId = {0}.", userId));
+
+                OFunnelDatabaseHandler databaseHandler = new OFunnelDatabaseHandler();
+                DataSet dataSet = databaseHandler.GetRecipientsEmail("'" + userId + "'");
+
+                List<string> toEmailsList = new List<string>();
+                toEmailsList.Add(toEmail);
+
+                List<string> recipientEmailsList = new List<string>();
+                if (HelperMethods.IsValidDataSet(dataSet))
+                {
+                    if (dataSet.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dataSet.Tables[0].Rows.Count; i++)
+                        {
+                            string email = string.Empty;
+                            email = Convert.ToString(dataSet.Tables[0].Rows[i]["email"]);
+                            email = "rshankar@adroit-inc.com";
+                            recipientEmailsList.Add(email);
+                        }
+                    }
+                    else
+                    {
+                        HelperMethods.AddLogs("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: No recipient email for netwrok alerts are available for userId = " + userId);
+                    }
+                }
+                else
+                {
+                    HelperMethods.AddLogs("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: Failed to get recipient email for netwrok alerts from database for userId = " + userId);
+                }
+
+                string[] toEmails = toEmailsList.ToArray();
+                string[] recipientEmails = recipientEmailsList.ToArray();
+
+                NetworkExpandStatistics networkExpandStatistics = this.GetNetworkExpandStatisticsForUserId(userId);
+                
+                // Send email for all public and private request to user.
+                EmailService emailService = new EmailService();
+
+                bool isNetworkExpandStatisticsFound = false;
+
+                if (networkExpandStatistics != null)
+                {
+                    isNetworkExpandStatisticsFound = emailService.CreateNetworkExpandStatisticsForEmailTemplate(networkExpandStatistics);
+                }
+                else
+                {
+                    HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: No Network Expand Statistics found for userId = {0}, userName = {1}.", userId, userName));
+                }
+
+                if (isNetworkExpandStatisticsFound)
+                {
+                    NameValueCollection nameValues = new NameValueCollection();
+                    nameValues["userId"] = userId;
+
+                    emailService.SetUsersDetailsToSendEmail(nameValues);
+
+                    string networkExpandStatisticsEmailSubject = string.Empty;
+
+                    bool isMailSend = false;
+
+                    networkExpandStatisticsEmailSubject = Constants.NetworkExpandStatisticsEmailSubject;
+                    isMailSend = emailService.SendMailToAllUsers(toEmails, recipientEmails, null, networkExpandStatisticsEmailSubject, EmailType.NetworkExpandStatisticsEmail);
+
+                    if (isMailSend)
+                    {
+                        HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: network expand statistics email sends sucessfully to {0} at EmailId: {1}.\n\n", userName, toEmail));
+                    }
+                    else
+                    {
+                        HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: network expand statistics email failed to send to {0} at EmailId: {1}.\n\n", userName, toEmail));
+                    }
+                }
+                else
+                {
+                    HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: Location and Industry update Section is empty so there are no network expand statistics to send email for userId = {0}.", userId));
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: Failed to send network expand statistics email for userId = {0}. Exception = {1} \n\n", userId, ex.Message));
+            }
+
+            if (Interlocked.Decrement(ref numberOfThreadsForNetworkExpandStatisticsEmailNotYetCompleted) == 0)
+            {
+                this.doneEventForNetworkExpandStatisticsEmail.Set();
+            }
+
+            HelperMethods.AddLogs(string.Format("Exit from ThreadPoolCallbackToSendNetworkExpandStatisticsEmail for userId = {0}.", userId));
+        }
+
+
+        /// <summary>
+        /// This method gets Network Expand Statistics for user.
+        /// </summary>
+        /// <param name="userId">userId</param>
+        private NetworkExpandStatistics GetNetworkExpandStatisticsForUserId(string userId)
+        {
+            NetworkExpandStatistics networkExpandStatistics = new NetworkExpandStatistics();
+
+            try
+            {
+                NameValueCollection nameValue = new NameValueCollection();
+                nameValue["userId"] = userId;
+
+                string message = HelperMethods.GetParametersListForLogMessage(nameValue);
+
+                HelperMethods.AddLogs("Enter In GetNetworkExpandStatisticsForUserId. Parameters List => " + message);
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    OFunnelDatabaseHandler databaseHandler = new OFunnelDatabaseHandler();
+                    DataSet dataSet = databaseHandler.GetNetworkExpandDetailsForLocationAndIndustryForUserId("'" + userId + "'");
+
+                    if (dataSet != null && dataSet.Tables.Count > 0)
+                    {
+                        List<SubIndustryNetworkUpdates> subIndustryNetworkUpdatesList = new List<SubIndustryNetworkUpdates>();
+                        List<LocationNetworkUpdates> locationNetworkUpdatesList = new List<LocationNetworkUpdates>();
+
+                        // Fill data for Location network expand
+                        if (dataSet.Tables[0].Rows.Count > 0)
+                        {
+                            LocationNetworkUpdates locationNetworkUpdates = null;
+
+                            for (int i = 0; i < dataSet.Tables[0].Rows.Count; i++)
+                            {
+                                locationNetworkUpdates = new LocationNetworkUpdates();
+
+                                locationNetworkUpdates.locationName = Convert.ToString(dataSet.Tables[0].Rows[i]["name"]);
+                                locationNetworkUpdates.locationUpdateCount = Convert.ToString(dataSet.Tables[0].Rows[i]["networkExpandCount"]);
+
+                                locationNetworkUpdatesList.Add(locationNetworkUpdates);
+                            }
+                        }
+
+                        // Fill data for subindustry network expand
+                        if (dataSet.Tables[1].Rows.Count > 0)
+                        {
+                            SubIndustryNetworkUpdates subIndustryNetworkUpdates = null;
+
+                            for (int i = 0; i < dataSet.Tables[1].Rows.Count; i++)
+                            {
+                                subIndustryNetworkUpdates = new SubIndustryNetworkUpdates();
+
+                                subIndustryNetworkUpdates.subindustryName = Convert.ToString(dataSet.Tables[1].Rows[i]["name"]);
+                                subIndustryNetworkUpdates.subindustryUpdateCount = Convert.ToString(dataSet.Tables[1].Rows[i]["networkExpandCount"]);
+
+                                subIndustryNetworkUpdatesList.Add(subIndustryNetworkUpdates);
+                            }
+                        }
+
+                        networkExpandStatistics.subIndustryNetworkUpdates = subIndustryNetworkUpdatesList.ToArray();
+                        networkExpandStatistics.locationNetworkUpdates = locationNetworkUpdatesList.ToArray();
+                    }
+                    else
+                    {
+                        HelperMethods.AddLogs("GetNetworkExpandStatisticsForUserId: (InvalidDataSet) Data received form database is invalid.");
+                    }
+                }
+                else
+                {
+                    HelperMethods.AddLogs("GetNetworkExpandStatisticsForUserId: Required parameter {userId} is missing.");
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperMethods.AddLogs(string.Format("GetNetworkExpandStatisticsForUserId: Failed to get Network Expand Statistics details from Database for userId = {0}. Exception Occured = {1}", userId, ex.Message));
+            }
+
+            HelperMethods.AddLogs("Exit from GetNetworkExpandStatisticsForUserId.");
+
+            return networkExpandStatistics;
+        }
+
+        /// <summary>
+        /// This methods gets all ofunnnel users who has any Network Expand Statistics update in last 1 week.
+        /// </summary>
+        /// <returns>OFunnelUsers</returns>
+        private OFunnelUsers GetAllOFunnelUsersForNetworkExpandStatistics()
+        {
+            OFunnelUsers oFunnelUsers = null;
+
+            try
+            {
+                OFunnelDatabaseHandler databaseHandler = new OFunnelDatabaseHandler();
+                DataSet dataSet = databaseHandler.GetOFunnelUsersForNetworkExpandStatistics();
+
+                if (HelperMethods.IsValidDataSet(dataSet))
+                {
+                    oFunnelUsers = new OFunnelUsers();
+
+                    OFunnelUser oFunnelUser = null;
+
+                    List<OFunnelUser> oFunnelUserList = new List<OFunnelUser>();
+
+                    for (int i = 0; i < dataSet.Tables[0].Rows.Count; i++)
+                    {
+                        oFunnelUser = new OFunnelUser();
+                        oFunnelUser.userIndex = i;
+                        oFunnelUser.userId = string.IsNullOrEmpty(Convert.ToString(dataSet.Tables[0].Rows[i]["userId"])) ? -1 : Convert.ToInt32(dataSet.Tables[0].Rows[i]["userId"]); ;
+                        oFunnelUser.firstName = Convert.ToString(dataSet.Tables[0].Rows[i]["firstName"]);
+                        oFunnelUser.lastName = Convert.ToString(dataSet.Tables[0].Rows[i]["lastName"]);
+                        oFunnelUser.email = Convert.ToString(dataSet.Tables[0].Rows[i]["email"]);
+                        oFunnelUser.accountType = Convert.ToString(dataSet.Tables[0].Rows[i]["accountType"]);
+
+                        oFunnelUserList.Add(oFunnelUser);
+                    }
+
+                    oFunnelUsers.oFunnelUser = oFunnelUserList.ToArray();
+                }
+            }
+            catch (Exception ex)
+            {
+                HelperMethods.AddLogs("GetAllOFunnelUsersForNetworkExpandStatistics: Failed to get all ofunnel users for target accounts from database." + ex.Message);
+            }
+
+            return oFunnelUsers;
+        }
+
 
         /// <summary>
         /// Method to send the Followup Network updates email.

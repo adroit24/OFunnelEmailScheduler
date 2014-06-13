@@ -138,6 +138,9 @@
     <Content Include="EmailTemplates\ConnectionAlertEmailTemplate.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="EmailTemplates\NetworkExpandStatisticsEmailTemplate.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="EmailTemplates\ReconnectToLinkedInEmailForPipelineUserTemplate.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

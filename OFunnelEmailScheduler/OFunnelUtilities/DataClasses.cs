@@ -229,4 +229,22 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         public string profilePicUrl { get; set; }
         public string twitterBio { get; set; }
     }
+
+    public class NetworkExpandStatistics
+    {
+        public SubIndustryNetworkUpdates[] subIndustryNetworkUpdates { get; set; }
+        public LocationNetworkUpdates[] locationNetworkUpdates { get; set; }
+    }
+
+    public class SubIndustryNetworkUpdates
+    {
+        public string subindustryName { get; set; }
+        public string subindustryUpdateCount { get; set; }
+    }
+
+    public class LocationNetworkUpdates
+    {
+        public string locationName { get; set; }
+        public string locationUpdateCount { get; set; }
+    }
 }
