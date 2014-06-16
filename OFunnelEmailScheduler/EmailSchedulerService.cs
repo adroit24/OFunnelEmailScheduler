@@ -129,9 +129,9 @@ namespace OFunnelEmailScheduler
             followUpNetworkUpdateTimer = new Timer(RequestFollowupsEmailSchedulerTimeElapsed, null, nextFollowupsEmailSendTime - DateTime.Now, TimeSpan.FromHours(Config.FollowupEmailTimerIntervalInHours));
 
             // weekly network expand statistics email timer.
-            DateTime todayStatisticsEmailSendTime = now.Date.AddHours(Config.NetworkStatisticsEmailTime);
-            DateTime nextStatisticsEmailSendTime = now <= todayStatisticsEmailSendTime ? todayStatisticsEmailSendTime : todayStatisticsEmailSendTime.AddHours(Config.NetworkStatisticsTimerIntervalInHours);
-            statisticsEmailSchedulerTimer = new Timer(NetworkExpandStatisticsEmailSchedulerTimeElapsed, null, nextStatisticsEmailSendTime - DateTime.Now, TimeSpan.FromHours(Config.NetworkStatisticsTimerIntervalInHours));
+            //DateTime todayStatisticsEmailSendTime = now.Date.AddHours(Config.NetworkStatisticsEmailTime);
+            //DateTime nextStatisticsEmailSendTime = now <= todayStatisticsEmailSendTime ? todayStatisticsEmailSendTime : todayStatisticsEmailSendTime.AddHours(Config.NetworkStatisticsTimerIntervalInHours);
+            //statisticsEmailSchedulerTimer = new Timer(NetworkExpandStatisticsEmailSchedulerTimeElapsed, null, nextStatisticsEmailSendTime - DateTime.Now, TimeSpan.FromHours(Config.NetworkStatisticsTimerIntervalInHours));
 
             /////////////////////////////////////////////////////////
             //// Check Server Status
@@ -2603,7 +2603,7 @@ namespace OFunnelEmailScheduler
             {
                 OFunnelUser oFunnelUser = threadContext as OFunnelUser;
                 userId = Convert.ToString(oFunnelUser.userId);
-                string toEmail = "ravi05cse@gmail.com";//oFunnelUser.email;
+                string toEmail = oFunnelUser.email;
                 string userName = oFunnelUser.firstName + " " + oFunnelUser.lastName;
 
                 HelperMethods.AddLogs(string.Format("Enter in ThreadPoolCallbackToSendNetworkExpandStatisticsEmail for userId = {0}.", userId));
@@ -2623,7 +2623,6 @@ namespace OFunnelEmailScheduler
                         {
                             string email = string.Empty;
                             email = Convert.ToString(dataSet.Tables[0].Rows[i]["email"]);
-                            email = "rshankar@adroit-inc.com";
                             recipientEmailsList.Add(email);
                         }
                     }
@@ -2990,27 +2989,31 @@ namespace OFunnelEmailScheduler
                     HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendFollowUpNetworkUpdateEmail: No twitter lead found for userId = {0}, userName = {1}.", userId, userName));
                 }
 
-                if (isNetworkUpdateFound || isTwitterLeadFound)
+                NetworkExpandStatistics networkExpandStatistics = this.GetNetworkExpandStatisticsForUserId(userId);
+                bool isNetworkExpandStatisticsFound = false;
+
+                if (networkExpandStatistics != null)
+                {
+                    isNetworkExpandStatisticsFound = emailService.CreateNetworkExpandStatisticsForEmailTemplate(networkExpandStatistics);
+                }
+                else
+                {
+                    HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendFollowUpNetworkUpdateEmail: No Network Expand Statistics found for userId = {0}, userName = {1}.", userId, userName));
+                }
+
+                if (isNetworkUpdateFound || isTwitterLeadFound || isNetworkExpandStatisticsFound)
                 {
                     NameValueCollection nameValues = new NameValueCollection();
                     nameValues["userId"] = userId;
 
                     emailService.SetUsersDetailsToSendEmail(nameValues);
 
-                    string netwrokUpdateAlertEmailSubject = string.Empty;
+                    string netwrokUpdateFollowupAlertEmailSubject = string.Empty;
 
                     bool isMailSend = false;
 
-                    if (oFunnelUser.accountType.ToUpper() == "PIPELINEUSER")
-                    {
-                        netwrokUpdateAlertEmailSubject = Constants.NetwrokUpdateAlertEmailSubjectForPipelineUser;
-                        isMailSend = emailService.SendMailToAllUsers(toEmails, recipientEmails, null, netwrokUpdateAlertEmailSubject, EmailType.NetwrokUpdateAlertEmailForPipelineUser);
-                    }
-                    else
-                    {
-                        netwrokUpdateAlertEmailSubject = Constants.NetwrokUpdateFollowUpAlertEmailSubject;
-                        isMailSend = emailService.SendMailToAllUsers(toEmails, recipientEmails, null, netwrokUpdateAlertEmailSubject, EmailType.NetwrokUpdateAlertEmail);
-                    }
+                    netwrokUpdateFollowupAlertEmailSubject = Constants.NetwrokUpdateFollowUpAlertEmailSubject;
+                    isMailSend = emailService.SendMailToAllUsers(toEmails, recipientEmails, null, netwrokUpdateFollowupAlertEmailSubject, EmailType.NetwrokUpdateFollowupAlertEmail);
 
                     if (isMailSend)
                     {

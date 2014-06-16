@@ -19,6 +19,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
     {
         OpenRequestEmail,
         NetwrokUpdateAlertEmail,
+        NetwrokUpdateFollowupAlertEmail,
         NetwrokUpdateAlertEmailForPipelineUser,
         AccessTokenExpiredEmail,
         AccessTokenExpiredEmailForPipelineUser,
@@ -74,6 +75,12 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                             emailUserName = Config.EmailUserName;
 
                             htmlView = this.CreateAlternateViewForNetworkUpdateAlertEmail();
+                            break;
+
+                        case EmailType.NetwrokUpdateFollowupAlertEmail:
+                            emailUserName = Config.EmailUserName;
+
+                            htmlView = this.CreateAlternateViewForNetworkUpdateFollowupAlertEmail();
                             break;
 
                         case EmailType.NetwrokUpdateAlertEmailForPipelineUser:
@@ -189,6 +196,12 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                             emailUserName = Config.EmailUserName;
 
                             htmlView = this.CreateAlternateViewForNetworkUpdateAlertEmail();
+                            break;
+
+                        case EmailType.NetwrokUpdateFollowupAlertEmail:
+                            emailUserName = Config.EmailUserName;
+
+                            htmlView = this.CreateAlternateViewForNetworkUpdateFollowupAlertEmail();
                             break;
 
                         case EmailType.NetwrokUpdateAlertEmailForPipelineUser:
@@ -576,6 +589,100 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
             userImageForConnectedTo.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
             htmlView.LinkedResources.Add(userImageForConnectedTo);
             
+
+            LinkedResource faceBookiconImagelink = new LinkedResource(appPath + @"\Assets\f-icon.jpg", "image/jpg");
+            faceBookiconImagelink.ContentId = "faceBookicon";
+            faceBookiconImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(faceBookiconImagelink);
+
+            LinkedResource twitterIconImagelink = new LinkedResource(appPath + @"\Assets\t-icon.jpg", "image/jpg");
+            twitterIconImagelink.ContentId = "twitterIcon";
+            twitterIconImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(twitterIconImagelink);
+
+            LinkedResource linkedInIconImagelink = new LinkedResource(appPath + @"\Assets\in-icon.jpg", "image/jpg");
+            linkedInIconImagelink.ContentId = "linkedInIcon";
+            linkedInIconImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(linkedInIconImagelink);
+
+            return htmlView;
+        }
+
+        /// <summary>
+        /// This method creates alternate view for netwrok update followup Alert Email.
+        /// </summary>
+        /// <returns>Alternate view for Connection Alert Email.</returns>
+        private AlternateView CreateAlternateViewForNetworkUpdateFollowupAlertEmail()
+        {
+            var appPath = HelperMethods.GetExeDir();
+
+            //Get the html file for request address
+            var bodyFile = Path.Combine(appPath, @"EmailTemplates\ConnectionFollowupAlertEmailTemplate.html");
+            //Read contents of HTML file
+            StreamReader dataStreamReader = File.OpenText(bodyFile);
+
+            string mailBody = dataStreamReader.ReadToEnd();
+
+            dataStreamReader.Close();
+
+            if (!string.IsNullOrEmpty(this.networkUpdateSection))
+            {
+                mailBody = mailBody.Replace(":NETWORK_UPDATE_DETAILS", Constants.NetworkUpdateDetailsHeader);
+                mailBody = mailBody.Replace(":NETWORK_UPDATE_SECTION", this.networkUpdateSection);
+            }
+            else
+            {
+                mailBody = mailBody.Replace(":NETWORK_UPDATE_DETAILS", string.Empty);
+            }
+
+            if (!string.IsNullOrEmpty(this.positionUpdateSection))
+            {
+                mailBody = mailBody.Replace(":MORE_GOOD_NEWS_DETAILS", Constants.MoreGoodNewsDetails);
+                mailBody = mailBody.Replace(":POSITION_UPDATE_SECTION", this.positionUpdateSection);
+            }
+            else
+            {
+                mailBody = mailBody.Replace(":MORE_GOOD_NEWS_DETAILS", string.Empty);
+            }
+
+            string twitterLeadDetails = Convert.ToString(twitterAllLeadSection);
+            mailBody = mailBody.Replace(":TWITTER_LEAD_DETAILS", twitterLeadDetails);
+
+            mailBody = mailBody.Replace(":USER_IDS", nameValues["userId"]);
+
+            mailBody = mailBody.Replace(":LOCATION_NETWORK_EXPAND_STATISTICS", this.networkExpandForLocationSection);
+            mailBody = mailBody.Replace(":SUBINDUSTRY_NETWORK_EXPAND_STATISTICS", this.networkExpandForSubIndustrySection);
+
+            string unsubscribeFromAlertsUrl = Config.UnsubscribeFromAlertsUrl;
+
+            unsubscribeFromAlertsUrl = unsubscribeFromAlertsUrl.Replace(":USER_ID", nameValues["userId"]);
+
+            mailBody = mailBody.Replace(":UNSUBSCRIBE_LINK", unsubscribeFromAlertsUrl);
+
+            AlternateView htmlView = AlternateView.CreateAlternateViewFromString(mailBody, null, "text/html");
+
+            LinkedResource voteNowLogoImagelink = new LinkedResource(appPath + @"\Assets\votenow-icon.png", "image/png");
+            voteNowLogoImagelink.ContentId = "voteNowLogo";
+            voteNowLogoImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(voteNowLogoImagelink);
+
+            LinkedResource emailLogoImagelink = new LinkedResource(appPath + @"\Assets\logo_email.jpg", "image/jpg");
+            emailLogoImagelink.ContentId = "emailLogo";
+            emailLogoImagelink.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(emailLogoImagelink);
+
+
+            LinkedResource userImageForYourConnection = new LinkedResource(appPath + @"\Assets\user-photo.jpg", "image/jpg");
+            userImageForYourConnection.ContentId = "yourConnectionProfilePicUrl";
+            userImageForYourConnection.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(userImageForYourConnection);
+
+
+            LinkedResource userImageForConnectedTo = new LinkedResource(appPath + @"\Assets\user-photo.jpg", "image/jpg");
+            userImageForConnectedTo.ContentId = "connectedToProfilePicUrl";
+            userImageForConnectedTo.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;
+            htmlView.LinkedResources.Add(userImageForConnectedTo);
+
 
             LinkedResource faceBookiconImagelink = new LinkedResource(appPath + @"\Assets\f-icon.jpg", "image/jpg");
             faceBookiconImagelink.ContentId = "faceBookicon";
