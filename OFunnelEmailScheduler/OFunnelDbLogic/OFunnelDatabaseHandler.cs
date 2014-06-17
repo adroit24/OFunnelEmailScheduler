@@ -53,13 +53,7 @@ namespace OFunnelEmailScheduler.OFunnelDbLogic
             this.sql = "OFunnel_UpdatedNetworkConnections_GetOFunnelUsersForFollowUpNetworkUpdate ";
             return BusinessLogic.Exec_Dataset_string(sql);
         }
-
-        public DataSet GetOFunnelUsersForNetworkExpandStatistics()
-        {
-            this.sql = "OFunnel_NetworkExpandDetails_GetOFunnelUsersForNetworkExpandStatistics ";
-            return BusinessLogic.Exec_Dataset_string(sql);
-        }
-
+        
         public DataSet GetAllOFunnelUsersForAccessTokenExpired()
         {
             this.sql = "OFunnel_TargetAccount_GetAllOFunnelUserForAccessTokenExpired ";

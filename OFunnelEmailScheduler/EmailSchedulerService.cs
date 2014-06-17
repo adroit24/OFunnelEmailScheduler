@@ -43,7 +43,6 @@ namespace OFunnelEmailScheduler
         private int numberOfThreadsToUpdateCompanyDetailsNotYetCompleted = -1;
         private int numberOfThreadsToSendPushNotificationNotYetCompleted = -1;
         private int numberOfThreadsForFollowupNetworkUpdateEmailNotYetCompleted = -1;
-        private int numberOfThreadsForNetworkExpandStatisticsEmailNotYetCompleted = -1;
         
         private ManualResetEvent doneEvent = new ManualResetEvent(false);
         private ManualResetEvent doneEventForSimilarCompanies = new ManualResetEvent(false);
@@ -53,7 +52,6 @@ namespace OFunnelEmailScheduler
         private ManualResetEvent doneEventToUpdateCompanies = new ManualResetEvent(false);
         private ManualResetEvent doneEventToSendPushNotification = new ManualResetEvent(false);
         private ManualResetEvent doneEventForFollowUpNetworkUpdateEmail = new ManualResetEvent(false);
-        private ManualResetEvent doneEventForNetworkExpandStatisticsEmail = new ManualResetEvent(false);
         
         private AllArticles allArticles = null;
 
@@ -127,11 +125,6 @@ namespace OFunnelEmailScheduler
             DateTime todayFollowupsEmailTime = now.Date.AddHours(Config.FollowupEmailSendTime);
             DateTime nextFollowupsEmailSendTime = now <= todayFollowupsEmailTime ? todayFollowupsEmailTime : todayFollowupsEmailTime.AddHours(Config.FollowupEmailTimerIntervalInHours);
             followUpNetworkUpdateTimer = new Timer(RequestFollowupsEmailSchedulerTimeElapsed, null, nextFollowupsEmailSendTime - DateTime.Now, TimeSpan.FromHours(Config.FollowupEmailTimerIntervalInHours));
-
-            // weekly network expand statistics email timer.
-            //DateTime todayStatisticsEmailSendTime = now.Date.AddHours(Config.NetworkStatisticsEmailTime);
-            //DateTime nextStatisticsEmailSendTime = now <= todayStatisticsEmailSendTime ? todayStatisticsEmailSendTime : todayStatisticsEmailSendTime.AddHours(Config.NetworkStatisticsTimerIntervalInHours);
-            //statisticsEmailSchedulerTimer = new Timer(NetworkExpandStatisticsEmailSchedulerTimeElapsed, null, nextStatisticsEmailSendTime - DateTime.Now, TimeSpan.FromHours(Config.NetworkStatisticsTimerIntervalInHours));
 
             /////////////////////////////////////////////////////////
             //// Check Server Status
@@ -2534,168 +2527,6 @@ namespace OFunnelEmailScheduler
                 this.SendEmailToOFunnelUsersForFollowupNetworkUpdate();   
             }
         }
-
-        /// <summary>
-        /// Network expand statistics Email scheduler time elapsed callback.
-        /// </summary>
-        /// <param name="sender">Sender of event.</param>
-        /// <param name="e">Event arguments</param>
-        private void NetworkExpandStatisticsEmailSchedulerTimeElapsed(object sender)
-        {
-            DayOfWeek dayOfWeek = DateTime.Now.DayOfWeek;
-
-            // To send email on Thursday only.
-            if ((DayOfWeek.Thursday == dayOfWeek))
-            {
-                this.SendEmailToOFunnelUsersForNetworkExpandStatistics();
-            }
-        }
-
-
-        /// <summary>
-        /// Method to send the Network Expand Statistics email.
-        /// </summary>
-        private void SendEmailToOFunnelUsersForNetworkExpandStatistics()
-        {
-            HelperMethods.AddLogs("Enter in SendEmailToOFunnelUsersForNetworkExpandStatistics.");
-
-            try
-            {
-                OFunnelUsers oFunnelUsers = this.GetAllOFunnelUsersForNetworkExpandStatistics();
-
-                if (oFunnelUsers != null && oFunnelUsers.oFunnelUser != null && oFunnelUsers.oFunnelUser.Length > 0)
-                {
-                    this.numberOfThreadsForNetworkExpandStatisticsEmailNotYetCompleted = oFunnelUsers.oFunnelUser.Length;
-
-                    foreach (OFunnelUser oFunnelUser in oFunnelUsers.oFunnelUser)
-                    {
-                        if (oFunnelUser.userId != -1)
-                        {
-                            ThreadPool.QueueUserWorkItem(new WaitCallback(ThreadPoolCallbackToSendNetworkExpandStatisticsEmail), oFunnelUser);
-                        }
-                        else
-                        {
-                            this.numberOfThreadsForNetworkExpandStatisticsEmailNotYetCompleted--;
-                        }
-                    }
-
-                    this.doneEventForFollowUpNetworkUpdateEmail.WaitOne();
-                }
-            }
-            catch (Exception ex)
-            {
-                HelperMethods.AddLogs(string.Format("SendEmailToOFunnelUsersForNetworkExpandStatistics : Failed to send Network Expand Statistics emails for all users. \n\n", ex.Message));
-            }
-
-            HelperMethods.AddLogs("Exit from SendEmailToOFunnelUsersForNetworkExpandStatistics.");
-        }
-
-
-        /// <summary>
-        /// Thread pool callback to send email for Network Expand Statistics.
-        /// </summary>
-        /// <param name="threadContext">threadContext</param>
-        public void ThreadPoolCallbackToSendNetworkExpandStatisticsEmail(Object threadContext)
-        {
-            string userId = string.Empty;
-
-            try
-            {
-                OFunnelUser oFunnelUser = threadContext as OFunnelUser;
-                userId = Convert.ToString(oFunnelUser.userId);
-                string toEmail = oFunnelUser.email;
-                string userName = oFunnelUser.firstName + " " + oFunnelUser.lastName;
-
-                HelperMethods.AddLogs(string.Format("Enter in ThreadPoolCallbackToSendNetworkExpandStatisticsEmail for userId = {0}.", userId));
-
-                OFunnelDatabaseHandler databaseHandler = new OFunnelDatabaseHandler();
-                DataSet dataSet = databaseHandler.GetRecipientsEmail("'" + userId + "'");
-
-                List<string> toEmailsList = new List<string>();
-                toEmailsList.Add(toEmail);
-
-                List<string> recipientEmailsList = new List<string>();
-                if (HelperMethods.IsValidDataSet(dataSet))
-                {
-                    if (dataSet.Tables[0].Rows.Count > 0)
-                    {
-                        for (int i = 0; i < dataSet.Tables[0].Rows.Count; i++)
-                        {
-                            string email = string.Empty;
-                            email = Convert.ToString(dataSet.Tables[0].Rows[i]["email"]);
-                            recipientEmailsList.Add(email);
-                        }
-                    }
-                    else
-                    {
-                        HelperMethods.AddLogs("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: No recipient email for netwrok alerts are available for userId = " + userId);
-                    }
-                }
-                else
-                {
-                    HelperMethods.AddLogs("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: Failed to get recipient email for netwrok alerts from database for userId = " + userId);
-                }
-
-                string[] toEmails = toEmailsList.ToArray();
-                string[] recipientEmails = recipientEmailsList.ToArray();
-
-                NetworkExpandStatistics networkExpandStatistics = this.GetNetworkExpandStatisticsForUserId(userId);
-                
-                // Send email for all public and private request to user.
-                EmailService emailService = new EmailService();
-
-                bool isNetworkExpandStatisticsFound = false;
-
-                if (networkExpandStatistics != null)
-                {
-                    isNetworkExpandStatisticsFound = emailService.CreateNetworkExpandStatisticsForEmailTemplate(networkExpandStatistics);
-                }
-                else
-                {
-                    HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: No Network Expand Statistics found for userId = {0}, userName = {1}.", userId, userName));
-                }
-
-                if (isNetworkExpandStatisticsFound)
-                {
-                    NameValueCollection nameValues = new NameValueCollection();
-                    nameValues["userId"] = userId;
-
-                    emailService.SetUsersDetailsToSendEmail(nameValues);
-
-                    string networkExpandStatisticsEmailSubject = string.Empty;
-
-                    bool isMailSend = false;
-
-                    networkExpandStatisticsEmailSubject = Constants.NetworkExpandStatisticsEmailSubject;
-                    isMailSend = emailService.SendMailToAllUsers(toEmails, recipientEmails, null, networkExpandStatisticsEmailSubject, EmailType.NetworkExpandStatisticsEmail);
-
-                    if (isMailSend)
-                    {
-                        HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: network expand statistics email sends sucessfully to {0} at EmailId: {1}.\n\n", userName, toEmail));
-                    }
-                    else
-                    {
-                        HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: network expand statistics email failed to send to {0} at EmailId: {1}.\n\n", userName, toEmail));
-                    }
-                }
-                else
-                {
-                    HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: Location and Industry update Section is empty so there are no network expand statistics to send email for userId = {0}.", userId));
-                }
-            }
-            catch (Exception ex)
-            {
-                HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkExpandStatisticsEmail: Failed to send network expand statistics email for userId = {0}. Exception = {1} \n\n", userId, ex.Message));
-            }
-
-            if (Interlocked.Decrement(ref numberOfThreadsForNetworkExpandStatisticsEmailNotYetCompleted) == 0)
-            {
-                this.doneEventForNetworkExpandStatisticsEmail.Set();
-            }
-
-            HelperMethods.AddLogs(string.Format("Exit from ThreadPoolCallbackToSendNetworkExpandStatisticsEmail for userId = {0}.", userId));
-        }
-
 
         /// <summary>
         /// This method gets Network Expand Statistics for user.

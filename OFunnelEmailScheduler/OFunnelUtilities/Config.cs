@@ -28,11 +28,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         // Trial period  expired email Timer config parameters
         public const int TrialPeriodExpiredTimerIntervalInHours = 24; //24 hours for 1 day
         public const int TrialPeriodExpiredEmailTime = 13; // At 1 PM it will send access token expired.
-
-        // Network expand statistics email Timer config parameters
-        public const int NetworkStatisticsTimerIntervalInHours = 24; //24 hours for 1 day
-        public const int NetworkStatisticsEmailTime = 17; // At 5 PM it will send network expand statistics email.
-
+        
         // Similar Companies Timer config parameters
         public const int SimilarCompaniesTimerIntervalInHours = 24; //24 hours for 1 day
         public const int SimilarCompaniesTime = 4; // At 4 AM it will invoke to check for similiar companies.
