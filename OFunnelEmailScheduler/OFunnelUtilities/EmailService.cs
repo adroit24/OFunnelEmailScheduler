@@ -24,8 +24,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         AccessTokenExpiredEmail,
         AccessTokenExpiredEmailForPipelineUser,
         TrialPeriodExpiredEmail,
-        OFunnelServerError,
-        NetworkExpandStatisticsEmail
+        OFunnelServerError
     }
 
     /// <summary>
@@ -236,12 +235,6 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                             emailUserName = Config.EmailUserName;
 
                             htmlView = this.CreateAlternateViewForOFunnelServerErrorEmail();
-                            break;
-
-                        case EmailType.NetworkExpandStatisticsEmail:
-                            emailUserName = Config.EmailUserName;
-
-                            htmlView = this.CreateAlternateViewFornetworkExpandStatisticsEmail();
                             break;
                     }
 
@@ -548,6 +541,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                 mailBody = mailBody.Replace(":MORE_GOOD_NEWS_DETAILS", string.Empty);
             }
 
+
             string twitterLeadDetails = Convert.ToString(twitterAllLeadSection);
             mailBody = mailBody.Replace(":TWITTER_LEAD_DETAILS", twitterLeadDetails);
 
@@ -643,6 +637,15 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
             else
             {
                 mailBody = mailBody.Replace(":MORE_GOOD_NEWS_DETAILS", string.Empty);
+            }
+
+            if (string.IsNullOrEmpty(this.networkUpdateSection) && string.IsNullOrEmpty(this.positionUpdateSection))
+            {
+                mailBody = mailBody.Replace(":FOLLOWUP_HEADING", string.Empty);
+            }
+            else
+            {
+                mailBody = mailBody.Replace(":FOLLOWUP_HEADING", Constants.FollowUpHeader);
             }
 
             string twitterLeadDetails = Convert.ToString(twitterAllLeadSection);

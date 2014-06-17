@@ -30,7 +30,6 @@ namespace OFunnelEmailScheduler
         Timer similarCompaniesTimer;
         Timer updateCompaniesSchedulerTimer;
         Timer followUpNetworkUpdateTimer;
-        Timer statisticsEmailSchedulerTimer;
 
         private System.Timers.Timer checkServerStatusTimer;
         private System.Timers.Timer sendPushNotificationTimer;
@@ -2609,53 +2608,7 @@ namespace OFunnelEmailScheduler
 
             return networkExpandStatistics;
         }
-
-        /// <summary>
-        /// This methods gets all ofunnnel users who has any Network Expand Statistics update in last 1 week.
-        /// </summary>
-        /// <returns>OFunnelUsers</returns>
-        private OFunnelUsers GetAllOFunnelUsersForNetworkExpandStatistics()
-        {
-            OFunnelUsers oFunnelUsers = null;
-
-            try
-            {
-                OFunnelDatabaseHandler databaseHandler = new OFunnelDatabaseHandler();
-                DataSet dataSet = databaseHandler.GetOFunnelUsersForNetworkExpandStatistics();
-
-                if (HelperMethods.IsValidDataSet(dataSet))
-                {
-                    oFunnelUsers = new OFunnelUsers();
-
-                    OFunnelUser oFunnelUser = null;
-
-                    List<OFunnelUser> oFunnelUserList = new List<OFunnelUser>();
-
-                    for (int i = 0; i < dataSet.Tables[0].Rows.Count; i++)
-                    {
-                        oFunnelUser = new OFunnelUser();
-                        oFunnelUser.userIndex = i;
-                        oFunnelUser.userId = string.IsNullOrEmpty(Convert.ToString(dataSet.Tables[0].Rows[i]["userId"])) ? -1 : Convert.ToInt32(dataSet.Tables[0].Rows[i]["userId"]); ;
-                        oFunnelUser.firstName = Convert.ToString(dataSet.Tables[0].Rows[i]["firstName"]);
-                        oFunnelUser.lastName = Convert.ToString(dataSet.Tables[0].Rows[i]["lastName"]);
-                        oFunnelUser.email = Convert.ToString(dataSet.Tables[0].Rows[i]["email"]);
-                        oFunnelUser.accountType = Convert.ToString(dataSet.Tables[0].Rows[i]["accountType"]);
-
-                        oFunnelUserList.Add(oFunnelUser);
-                    }
-
-                    oFunnelUsers.oFunnelUser = oFunnelUserList.ToArray();
-                }
-            }
-            catch (Exception ex)
-            {
-                HelperMethods.AddLogs("GetAllOFunnelUsersForNetworkExpandStatistics: Failed to get all ofunnel users for target accounts from database." + ex.Message);
-            }
-
-            return oFunnelUsers;
-        }
-
-
+        
         /// <summary>
         /// Method to send the Followup Network updates email.
         /// </summary>

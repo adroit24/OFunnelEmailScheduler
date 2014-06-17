@@ -284,6 +284,12 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         //                                                "</td>" +
         //                                            "</tr>";
 
+        public const string FollowUpHeader = @"<tr>
+                            <td colspan='2'>
+                                <span style='font-size: 15px; line-height: 20px; color: #252525; text-align: justify;'><strong>Follow&nbsp;Up</strong></span><br />
+                                <span style='font-size: 15px; color: #252525; text-align: justify; font-family: Arial, Helvetica, sans-serif;'>In past week, you have shown interest in following prospects in your network.</span>
+                            </td>
+                        </tr>";
 
         public const string NetworkUpdateDetailsHeader = "<tr>" +
             "<td colspan='2' style='padding-bottom:0px;'>" +
