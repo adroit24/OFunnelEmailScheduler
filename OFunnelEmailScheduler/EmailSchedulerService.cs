@@ -2773,7 +2773,8 @@ namespace OFunnelEmailScheduler
                     HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendFollowUpNetworkUpdateEmail: No twitter lead found for userId = {0}, userName = {1}.", userId, userName));
                 }
 
-                NetworkExpandStatistics networkExpandStatistics = this.GetNetworkExpandStatisticsForUserId(userId);
+                // As per requested by Kushal, We are not sending NetworkExpandStatistics email to user. 24-Jun-2014
+                NetworkExpandStatistics networkExpandStatistics = null; //this.GetNetworkExpandStatisticsForUserId(userId);
                 bool isNetworkExpandStatisticsFound = false;
 
                 if (networkExpandStatistics != null)
