@@ -48,6 +48,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         public const string TargetCompany = "Target Company: ";
         public const string TargetRole = "Target Role: ";
         public const string TargetPerson = "Target Person: ";
+        public const string TargetKeyword = "Target Keyword: ";
         public const string AlertEmailType = "ALERT";
 
         public const string OpenRequestSectionForUserNotAvailable = "<tr bgcolor=':SECTION_BACKGROUND_COLOR'>" +
@@ -459,6 +460,235 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                                                             "<span style='color: #000000; margin-left:8px; text-decoration: none; font-size: 15px;'>:NO_SUBINDUSTRY_NETWORKEXPAND</span>" +
                                                         "</td>" +
                                                     "</tr>";
+
+        public const string AllOtherNetworkUupdateSection = @"<tr>
+                            <td colspan='2' style='padding-bottom: 0px;'>
+                                <table align='left' cellpadding='5' cellspacing='0' style='width: 100%'>
+                                    :ALL_SECTION_UPDATES
+                                    <tr>
+                                        <td colspan='2' style='padding-bottom: 5px;'></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>";
+
+        public const string TargetHeadingName = @"<tr>
+                                        <td colspan='2' style='font-size: 16px; font-weight: 600; padding-left: 10px; padding-top: 10px; color: #000000; background: #D2D2D2; font-family: Arial, Helvetica, sans-serif;'>:KEWORD_TARGET_NAME
+                                        </td>
+                                    </tr>";
+
+        public const string CmpyStatusUpdate = @"<tr>
+                                        <td style='vertical-align: bottom; padding-left: 10px; border-bottom: 1px solid #d2d3d3; padding-top: 15px; padding-bottom: 15px;'>
+                                            <span style='width: 100%; float: left; font-size: 14px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>Current status of the <a href=':COMPANY_NAME_URL' style='color: #0068a1; text-decoration: none;'><strong>:COMPANY_NAME</strong></a> has changed</span>
+                                        </td>
+                                    </tr>";
+
+        public const string CmpyJobChange = @"<tr>
+                                        <td style='vertical-align: top; padding-left: 10px; border-bottom: 1px solid #d2d3d3; padding-top: 15px; padding-bottom: 15px;'>
+                                            <span style='width: 100%; float: left; font-size: 14px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>
+                                                <strong>:COMPANY_NAME</strong> has posted job for position
+                                                    <a href=':POSITION_URL' style='color: #0068a1; text-decoration: none;'>:JOB_POSITION</a>
+                                            </span>
+                                        </td>
+                                    </tr>";
+
+        public const string PicuProfilePicChange = @"<tr>
+                                        <td style='width: 50%; padding-top: 10px; vertical-align: top; padding-top: 15px; padding-bottom: 15px; padding-left: 10px; border-bottom: 1px solid #d2d3d3;'>
+                                            <table align='left' cellpadding='0' cellspacing='0' style='width: 100%'>
+                                                <tr>
+                                                    <td style='vertical-align: top; width: 38px; height: 38px'>
+                                                        <img style='border: 1px solid #d2d3d3; margin-top: 4px;' width='38' height='38' title='' alt='' src='cid:yourConnectionProfilePicUrl' />
+                                                    </td>
+                                                    <td style='vertical-align: top; padding-left: 10px;'>
+                                                        <span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                            <a href=':YOUR_CONNECTION_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>:YOUR_CONNECTION_FULL_NAME</strong></a></span>
+                                                        <br />
+                                                        <span style='width: 100%; float: left; font-size: 13px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>:YOUR_CONNECTION_JOB_TITLE</span><br />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan='2'>
+                                                        <span style='width: 100%; float: left; font-size: 15px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>has updated their profile picture.</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>";
+
+        public const string ProfProfileChange = @"<tr>
+                                        <td style='width: 50%; padding-top: 10px; vertical-align: top; padding-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #d2d3d3;'>
+                                            <table align='left' cellpadding='0' cellspacing='0' style='width: 100%'>
+                                                <tr>
+                                                    <td style='vertical-align: top; width: 38px; height: 38px'>
+                                                        <img style='border: 1px solid #d2d3d3; margin-top: 4px;' width='38' height='38' title='' alt='' src='cid:yourConnectionProfilePicUrl' />
+                                                    </td>
+                                                    <td style='vertical-align: top; padding-left: 10px;'>
+                                                        <span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                            <a href=':YOUR_CONNECTION_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>:YOUR_CONNECTION_FULL_NAME</strong></a></span>
+                                                        <br />
+                                                        <span style='width: 100%; float: left; font-size: 13px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>:YOUR_CONNECTION_JOB_TITLE</span><br />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan='2'>
+                                                        <span style='width: 100%; float: left; font-size: 15px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>has updated their profile.</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+
+                                    </tr>";
+
+        public const string PrfxExtendedProfileChange = @"<tr>
+                                        <td style='width: 50%; padding-top: 10px; vertical-align: top; padding-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #d2d3d3;'>
+                                            <table align='left' cellpadding='0' cellspacing='0' style='width: 100%'>
+                                                <tr>
+                                                    <td style='vertical-align: top; width: 38px; height: 38px'>
+                                                        <img style='border: 1px solid #d2d3d3; margin-top: 4px;' width='38' height='38' title='' alt='' src='cid:yourConnectionProfilePicUrl' />
+                                                    </td>
+                                                    <td style='vertical-align: top; padding-left: 10px;'>
+                                                        <span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                            <a href=':YOUR_CONNECTION_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>:YOUR_CONNECTION_FULL_NAME</strong></a></span>
+                                                        <br />
+                                                        <span style='width: 100%; float: left; font-size: 13px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>:YOUR_CONNECTION_JOB_TITLE</span><br />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan='2'>
+                                                        <span style='width: 100%; float: left; font-size: 15px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>has updated their extended profile, personal information such phone number,IM account, and Twitter handle.</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+
+                                    </tr>";
+
+        public const string PrecRecommendation = @"<tr>
+                                        <td style='width: 50%; padding-top: 10px; vertical-align: top; padding-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #d2d3d3;'>
+                                            <table align='left' cellpadding='0' cellspacing='0' style='width: 100%'>
+                                                <tr>
+                                                    <td style='vertical-align: top; width: 38px; height: 38px'>
+                                                        <img style='border: 1px solid #d2d3d3; margin-top: 4px;' width='38' height='38' title='' alt='' src='cid:yourConnectionProfilePicUrl' />
+                                                    </td>
+                                                    <td style='vertical-align: top; padding-left: 10px;'>
+                                                        <span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                            <a href=':YOUR_CONNECTION_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>:YOUR_CONNECTION_FULL_NAME</strong></a></span>
+                                                        <br />
+                                                        <span style='width: 100%; float: left; font-size: 13px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>:YOUR_CONNECTION_JOB_TITLE</span><br />
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td colspan='2'>
+                                                        <span style='width: 100%; float: left; font-size: 15px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>has recommended by</span>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td style='vertical-align: top; width: 38px; height: 38px'>
+                                                        <img style='border: 1px solid #d2d3d3; margin-top: 4px;' width='38' height='38' title='' alt='' src='cid:connectedToProfilePicUrl' />
+                                                    </td>
+                                                    <td style='vertical-align: top; padding-left: 10px;'>
+                                                        <span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                            <a href=':RECOMMENDEE_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>:RECOMMENDEE_FULL_NAME</strong></a></span>
+                                                        <br />
+                                                        <span style='width: 100%; float: left; font-size: 13px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>:RECOMMENDEE_JOB_TITLE</span><br />
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>";
+
+        public const string SharConnectionSharedLink = @"<tr>
+                                        <td style='width: 50%; padding-top: 10px; padding-top: 15px; padding-bottom: 15px; vertical-align: top; border-bottom: 1px solid #d2d3d3;'>
+                                            <table align='left' cellpadding='0' cellspacing='0' style='width: 100%'>
+                                                <tr>
+                                                    <td style='vertical-align: top; width: 38px; height: 38px'>
+                                                        <img style='border: 1px solid #d2d3d3; margin-top: 4px;' width='38' height='38' title='' alt='' src='cid:yourConnectionProfilePicUrl' />
+                                                    </td>
+                                                    <td style='vertical-align: top; padding-left: 10px;'>
+                                                        <span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                            <a href=':YOUR_CONNECTION_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>:YOUR_CONNECTION_FULL_NAME</strong></a></span>
+                                                        <br />
+                                                        <span style='width: 100%; float: left; font-size: 13px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>:YOUR_CONNECTION_JOB_TITLE</span><br />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan=2>
+                                                        <span style='width: 100%; float: left; font-size: 14px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>has shared <a href=':LINK_URL' style='color: #0068a1; text-decoration: none;'><strong>:LINK_NAME.</strong></a></span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>";
+
+        public const string VirlCommentedOrLiked = @"<tr>
+                                        <td style='width: 50%; padding-top: 10px; padding-top: 15px; padding-bottom: 15px; vertical-align: top; border-bottom: 1px solid #d2d3d3;'>
+                                            <table align='left' cellpadding='0' cellspacing='0' style='width: 100%'>
+                                                <tr>
+                                                    <td style='vertical-align: top; width: 38px; height: 38px'>
+                                                        <img style='border: 1px solid #d2d3d3; margin-top: 4px;' width='38' height='38' title='' alt='' src='cid:yourConnectionProfilePicUrl' />
+                                                    </td>
+                                                    <td style='vertical-align: top; padding-left: 10px;'>
+                                                        <span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                            <a href=':YOUR_CONNECTION_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>:YOUR_CONNECTION_FULL_NAME</strong></a></span>
+                                                        <br />
+                                                        <span style='width: 100%; float: left; font-size: 13px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>:YOUR_CONNECTION_JOB_TITLE</span><br />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan='2'>
+                                                        <span style='width: 100%; float: left; font-size: 15px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>has Commented or liked on</span>
+
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td style='vertical-align: top; width: 38px; height: 38px'>
+                                                        <img style='border: 1px solid #d2d3d3; margin-top: 4px;' width='38' height='38' title='' alt='' src='cid:connectedToProfilePicUrl' />
+                                                    </td>
+                                                    <td style='vertical-align: top; padding-left: 10px;'>
+                                                        <span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                            <a href=':UPDATED_BY_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>:UPDATED_BY_FULL_NAME</strong></a></span>
+                                                        <br />
+                                                        <span style='width: 100%; float: left; font-size: 14px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>:UPDATED_BY_JOB_TITLE</span><br />
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td colspan='2'>
+                                                        <!--<span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                                <a href=':YOUR_CONNECTION_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>has Shared Link</strong></a></span>-->
+
+                                                        <span style='width: 100%; float: left; font-size: 14px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>updated <a href=':COMMNT_OR_LIKED_URL' style='color: #0068a1; text-decoration: none;'><strong>:COMMNT_OR_LIKED_TEXT</strong></a></span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>";
+
+        public const string JgrpJoinedGroup = @"<tr>
+                                        <td style='width: 50%; padding-top: 10px; padding-top: 15px; padding-bottom: 15px; vertical-align: top; border-bottom: 1px solid #d2d3d3;'>
+                                            <table align='left' cellpadding='0' cellspacing='0' style='width: 100%'>
+                                                <tr>
+                                                    <td style='vertical-align: top; width: 38px; height: 38px'>
+                                                        <img style='border: 1px solid #d2d3d3; margin-top: 4px;' width='38' height='38' title='' alt='' src='cid:yourConnectionProfilePicUrl' />
+                                                    </td>
+                                                    <td style='vertical-align: top; padding-left: 10px;'>
+                                                        <span style='width: 100%; font-size: 15px; margin-top: -5px; margin-right: 5px; vertical-align: text-top; color: #0068a1; font-family: Calibri, arial, sans-serif;'>
+                                                            <a href=':YOUR_CONNECTION_PROFILE_URL' style='color: #0068a1; text-decoration: none;'><strong>:YOUR_CONNECTION_FULL_NAME</strong></a></span>
+                                                        <br />
+                                                        <span style='width: 100%; float: left; font-size: 13px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>:YOUR_CONNECTION_JOB_TITLE</span><br />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan='2'>
+                                                        <span style='width: 100%; float: left; font-size: 14px; height: auto; overflow: hidden; font-family: Arial, Helvetica, sans-serif;'>has joined <a href=':GROUP_URL' style='color: #0068a1; text-decoration: none;'><strong>:GROUP_NAME.</strong></a></span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>";
 
     }
 }

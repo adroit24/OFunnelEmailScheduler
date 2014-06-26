@@ -38,6 +38,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         private string networkUpdateSection = string.Empty;
         private string positionUpdateSection = string.Empty;
         private StringBuilder twitterAllLeadSection = new StringBuilder();
+        StringBuilder allOtherTypeNetworkUpdatesSection = new StringBuilder(string.Empty);
 
         private string networkExpandForLocationSection = string.Empty;
         private string networkExpandForSubIndustrySection = string.Empty;
@@ -541,6 +542,20 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                 mailBody = mailBody.Replace(":MORE_GOOD_NEWS_DETAILS", string.Empty);
             }
 
+            string allOtherTypeNetworkUpdateDetails = Convert.ToString(allOtherTypeNetworkUpdatesSection);
+
+            string allOtherNetworkUupdateSection = Constants.AllOtherNetworkUupdateSection;
+
+            if (!string.IsNullOrEmpty(allOtherTypeNetworkUpdateDetails))
+            {
+                allOtherNetworkUupdateSection = allOtherNetworkUupdateSection.Replace(":ALL_SECTION_UPDATES", allOtherTypeNetworkUpdateDetails);
+                mailBody = mailBody.Replace(":ALL_OTHER_NETWORK_UPDATE_SECTION", allOtherNetworkUupdateSection);
+            }
+            else
+            {
+                mailBody = mailBody.Replace(":ALL_OTHER_NETWORK_UPDATE_SECTION", string.Empty);
+            }
+
 
             string twitterLeadDetails = Convert.ToString(twitterAllLeadSection);
             mailBody = mailBody.Replace(":TWITTER_LEAD_DETAILS", twitterLeadDetails);
@@ -834,6 +849,9 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                         case "POSITIONPERSON":
                             alertTypeForNetworkUpdate = Constants.TargetPerson;
                             break;
+                        case "KEYWORD":
+                            alertTypeForNetworkUpdate = Constants.TargetKeyword;
+                            break;
                     }
 
                     if (networkAlertsForAlertType.networkAlerts != null && networkAlertsForAlertType.networkAlerts.Length > 0)
@@ -1016,6 +1034,416 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
             }
 
             return isUpdatedConnectionFound;
+        }
+
+
+        /// <summary>
+        /// This method creates network update section for network update type CMPY, JGRP, SHAR, PICU, PROF, PREC, VIRL.
+        /// </summary>
+        /// <param name="openRequestDetails"></param>
+        public bool CreateAllOtherTypeNetworkUpdateSectionForEmailTemplate(NetworkAlertsForOtherUpdateType[] networkAlertsForOtherUpdateType)
+        {
+            bool isUpdatedNetworkFound = false;
+
+            if (networkAlertsForOtherUpdateType != null && networkAlertsForOtherUpdateType.Length > 0)
+            {
+                foreach (NetworkAlertsForOtherUpdateType networkAlertsForAlertType in networkAlertsForOtherUpdateType)
+                {
+                    string alertType = networkAlertsForAlertType.alertType;
+                    string alertTypeForNetworkUpdate = string.Empty;
+
+                    alertTypeForNetworkUpdate = Constants.TargetKeyword;
+
+                    string networkUpdateHeading = string.Empty;
+
+                    if (networkAlertsForAlertType.networkAlerts != null && networkAlertsForAlertType.networkAlerts.Length > 0)
+                    {
+                        foreach (NetworkAlerts networkAlert in networkAlertsForAlertType.networkAlerts)
+                        {
+                            networkUpdateHeading = networkAlert.targetName;
+                            networkUpdateHeading = Constants.TargetKeyword + networkUpdateHeading;
+
+                            string headingSection = Constants.TargetHeadingName;
+
+                            headingSection = headingSection.Replace(":KEWORD_TARGET_NAME", networkUpdateHeading);
+
+                            string cmpyStatusUpdateSection = string.Empty;
+                            string cmpyJobChangeSection = string.Empty;
+                            string picuUpdateSection = string.Empty;
+                            string profUpdateSection = string.Empty;
+                            string prfxUpdateSection = string.Empty;
+                            string precUpdateSection = string.Empty;
+                            string sharUpdateSection = string.Empty;
+                            string virlUpdateSection = string.Empty;
+                            string jgrpUpdateSection = string.Empty;
+                            
+
+                            foreach (NetworkAlertDetails networkAlertDetails in networkAlert.networkAlertDetails)
+                            {
+                                string cmpyStatusUpdateTemplate = string.Empty;
+                                string cmpyJobChangeTemplate = string.Empty;
+                                string picuUpdateTemplate = string.Empty;
+                                string profUpdateTemplate = string.Empty;
+                                string prfxUpdateTemplate = string.Empty;
+                                string precUpdateTemplate = string.Empty;
+                                string sharUpdateTemplate = string.Empty;
+                                string virlUpdateTemplate = string.Empty;
+                                string jgrpUpdateTemplate = string.Empty;
+                                
+
+                                if (!string.IsNullOrEmpty(networkAlertDetails.updateType))
+                                {
+                                    string connectionName = string.Empty;
+                                    string connectionProfileUrl = string.Empty;
+                                    string connectionJobTitle = string.Empty;
+                                    string connectionProfilePicUrl = string.Empty;
+
+                                    string connectionToName = string.Empty;
+                                    string connectionToProfileUrl = string.Empty;
+                                    string connectionToJobTitle = string.Empty;
+                                    string connectionToProfilePicUrl = string.Empty;
+
+                                    switch (networkAlertDetails.updateType.ToUpper())
+                                    {
+                                        case "CMPY":
+                                            if (string.IsNullOrEmpty(networkAlertDetails.jobTitle))
+                                            {
+                                                cmpyStatusUpdateTemplate = Constants.CmpyStatusUpdate;
+                                                cmpyStatusUpdateTemplate = cmpyStatusUpdateTemplate.Replace(":COMPANY_NAME_URL", networkAlertDetails.shortenedUrl);
+                                                cmpyStatusUpdateTemplate = cmpyStatusUpdateTemplate.Replace(":COMPANY_NAME", networkAlertDetails.companyName);
+
+                                                cmpyStatusUpdateSection += cmpyStatusUpdateTemplate;
+                                            }
+                                            else
+                                            {
+                                                cmpyJobChangeTemplate = Constants.CmpyJobChange;
+                                                cmpyJobChangeTemplate = cmpyJobChangeTemplate.Replace(":COMPANY_NAME", networkAlertDetails.companyName);
+                                                cmpyJobChangeTemplate = cmpyJobChangeTemplate.Replace(":JOB_POSITION", networkAlertDetails.jobTitle);
+                                                cmpyJobChangeTemplate = cmpyJobChangeTemplate.Replace(":POSITION_URL", networkAlertDetails.shortenedUrl);
+
+                                                cmpyJobChangeSection += cmpyJobChangeTemplate;
+                                            }
+                                            break;
+
+                                        case "PICU":
+                                            picuUpdateTemplate = Constants.PicuProfilePicChange;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            picuUpdateTemplate = picuUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
+
+                                            connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
+
+                                            if (string.IsNullOrEmpty(connectionProfileUrl))
+                                            {
+                                                connectionProfileUrl = Constants.ConnectionLinkedInProfileUrl;
+
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":FIRST_NAME", networkAlertDetails.yourConnectionFirstName);
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":LAST_NAME", networkAlertDetails.yourConnectionLastName);
+                                            }
+                                            picuUpdateTemplate = picuUpdateTemplate.Replace(":YOUR_CONNECTION_PROFILE_URL", connectionProfileUrl);
+                                            
+                                            connectionJobTitle = networkAlertDetails.yourConnectionHeadline;
+                                            if (!string.IsNullOrEmpty(connectionJobTitle) && !string.IsNullOrEmpty(networkAlertDetails.yourConnectionCompany))
+                                            {
+                                                connectionJobTitle += ", " + networkAlertDetails.yourConnectionCompany;
+                                            }
+                                            picuUpdateTemplate = picuUpdateTemplate.Replace(":YOUR_CONNECTION_JOB_TITLE", connectionJobTitle);
+                                            picuUpdateTemplate = picuUpdateTemplate.Replace(":YOUR_CONNECTION_JOB_TITLE", connectionJobTitle);
+
+                                            connectionProfilePicUrl = networkAlertDetails.yourConnectionProfilePicUrl;
+
+                                            if (!string.IsNullOrEmpty(connectionProfilePicUrl))
+                                            {
+                                                picuUpdateTemplate = picuUpdateTemplate.Replace("cid:yourConnectionProfilePicUrl", connectionProfilePicUrl);
+                                            }
+
+                                            picuUpdateSection += picuUpdateTemplate;
+
+                                            break;
+
+                                        case "PROF":
+                                            profUpdateTemplate = Constants.ProfProfileChange;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            profUpdateTemplate = profUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
+
+                                            connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
+
+                                            if (string.IsNullOrEmpty(connectionProfileUrl))
+                                            {
+                                                connectionProfileUrl = Constants.ConnectionLinkedInProfileUrl;
+
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":FIRST_NAME", networkAlertDetails.yourConnectionFirstName);
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":LAST_NAME", networkAlertDetails.yourConnectionLastName);
+                                            }
+                                            profUpdateTemplate = profUpdateTemplate.Replace(":YOUR_CONNECTION_PROFILE_URL", connectionProfileUrl);
+                                            
+                                            connectionJobTitle = networkAlertDetails.yourConnectionHeadline;
+                                            if (!string.IsNullOrEmpty(connectionJobTitle) && !string.IsNullOrEmpty(networkAlertDetails.yourConnectionCompany))
+                                            {
+                                                connectionJobTitle += ", " + networkAlertDetails.yourConnectionCompany;
+                                            }
+                                            profUpdateTemplate = profUpdateTemplate.Replace(":YOUR_CONNECTION_JOB_TITLE", connectionJobTitle);
+
+                                            connectionProfilePicUrl = networkAlertDetails.yourConnectionProfilePicUrl;
+                                            if (!string.IsNullOrEmpty(connectionProfilePicUrl))
+                                            {
+                                                profUpdateTemplate = profUpdateTemplate.Replace("cid:yourConnectionProfilePicUrl", connectionProfilePicUrl);
+                                            }
+
+                                            profUpdateSection += profUpdateTemplate;
+                                            break;
+
+                                        case "PRFX":
+                                            prfxUpdateTemplate = Constants.PrfxExtendedProfileChange;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            prfxUpdateTemplate = prfxUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
+
+                                            connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
+
+                                            if (string.IsNullOrEmpty(connectionProfileUrl))
+                                            {
+                                                connectionProfileUrl = Constants.ConnectionLinkedInProfileUrl;
+
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":FIRST_NAME", networkAlertDetails.yourConnectionFirstName);
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":LAST_NAME", networkAlertDetails.yourConnectionLastName);
+                                            }
+                                            prfxUpdateTemplate = prfxUpdateTemplate.Replace(":YOUR_CONNECTION_PROFILE_URL", connectionProfileUrl);
+                                            
+                                            connectionJobTitle = networkAlertDetails.yourConnectionHeadline;
+                                            if (!string.IsNullOrEmpty(connectionJobTitle) && !string.IsNullOrEmpty(networkAlertDetails.yourConnectionCompany))
+                                            {
+                                                connectionJobTitle += ", " + networkAlertDetails.yourConnectionCompany;
+                                            }
+                                            prfxUpdateTemplate = prfxUpdateTemplate.Replace(":YOUR_CONNECTION_JOB_TITLE", connectionJobTitle);
+
+                                            connectionProfilePicUrl = networkAlertDetails.yourConnectionProfilePicUrl;
+                                            if (!string.IsNullOrEmpty(connectionProfilePicUrl))
+                                            {
+                                                prfxUpdateTemplate = prfxUpdateTemplate.Replace("cid:yourConnectionProfilePicUrl", connectionProfilePicUrl);
+                                            }
+
+                                            prfxUpdateSection += prfxUpdateTemplate;
+                                            break;
+
+                                        case "PREC":
+                                            
+                                            precUpdateTemplate = Constants.PrecRecommendation;
+
+                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            precUpdateTemplate = precUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
+
+                                            connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
+
+                                            if (string.IsNullOrEmpty(connectionProfileUrl))
+                                            {
+                                                connectionProfileUrl = Constants.ConnectionLinkedInProfileUrl;
+
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":FIRST_NAME", networkAlertDetails.yourConnectionFirstName);
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":LAST_NAME", networkAlertDetails.yourConnectionLastName);
+                                            }
+                                            precUpdateTemplate = precUpdateTemplate.Replace(":YOUR_CONNECTION_PROFILE_URL", connectionProfileUrl);
+                                            
+                                            connectionJobTitle = networkAlertDetails.yourConnectionHeadline;
+                                            if (!string.IsNullOrEmpty(connectionJobTitle) && !string.IsNullOrEmpty(networkAlertDetails.yourConnectionCompany))
+                                            {
+                                                connectionJobTitle += ", " + networkAlertDetails.yourConnectionCompany;
+                                            }
+                                            precUpdateTemplate = precUpdateTemplate.Replace(":YOUR_CONNECTION_JOB_TITLE", connectionJobTitle);
+
+                                            connectionProfilePicUrl = networkAlertDetails.yourConnectionProfilePicUrl;
+                                            if (!string.IsNullOrEmpty(connectionProfilePicUrl))
+                                            {
+                                                precUpdateTemplate = precUpdateTemplate.Replace("cid:yourConnectionProfilePicUrl", connectionProfilePicUrl);
+                                            }
+
+
+                                            connectionToName = networkAlertDetails.connectedToFirstName +" "+ networkAlertDetails.connectedToLastName;
+                                            precUpdateTemplate = precUpdateTemplate.Replace(":RECOMMENDEE_FULL_NAME", connectionToName);
+
+                                            connectionToProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
+
+                                            if (string.IsNullOrEmpty(connectionToProfileUrl))
+                                            {
+                                                connectionToProfileUrl = Constants.ConnectionLinkedInProfileUrl;
+
+                                                connectionToProfileUrl = connectionToProfileUrl.Replace(":FIRST_NAME", networkAlertDetails.yourConnectionFirstName);
+                                                connectionToProfileUrl = connectionToProfileUrl.Replace(":LAST_NAME", networkAlertDetails.yourConnectionLastName);
+                                            }
+                                            precUpdateTemplate = precUpdateTemplate.Replace(":RECOMMENDEE_PROFILE_URL", connectionToProfileUrl);
+                                            
+                                            connectionToJobTitle = networkAlertDetails.connectedToHeadline;
+                                            if (!string.IsNullOrEmpty(connectionToJobTitle) && !string.IsNullOrEmpty(networkAlertDetails.connectedToCompany))
+                                            {
+                                                connectionToJobTitle += ", " + networkAlertDetails.connectedToCompany;
+                                            }
+                                            precUpdateTemplate = precUpdateTemplate.Replace(":RECOMMENDEE_JOB_TITLE", connectionToJobTitle);
+
+                                            connectionToProfilePicUrl = networkAlertDetails.connectedToProfilePicUrl;
+                                            if (!string.IsNullOrEmpty(connectionToProfilePicUrl))
+                                            {
+                                                precUpdateTemplate = precUpdateTemplate.Replace("cid:connectedToProfilePicUrl", connectionToProfilePicUrl);
+                                            }
+
+                                            precUpdateSection += precUpdateTemplate;
+                                            break;
+                                            
+                                        case "SHAR":
+                                            sharUpdateTemplate = Constants.SharConnectionSharedLink;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            sharUpdateTemplate = sharUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
+
+                                            connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
+
+                                            if (string.IsNullOrEmpty(connectionProfileUrl))
+                                            {
+                                                connectionProfileUrl = Constants.ConnectionLinkedInProfileUrl;
+
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":FIRST_NAME", networkAlertDetails.yourConnectionFirstName);
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":LAST_NAME", networkAlertDetails.yourConnectionLastName);
+                                            }
+                                            sharUpdateTemplate = sharUpdateTemplate.Replace(":YOUR_CONNECTION_PROFILE_URL", connectionProfileUrl);
+                                            
+                                            connectionJobTitle = networkAlertDetails.yourConnectionHeadline;
+                                            if (!string.IsNullOrEmpty(connectionJobTitle) && !string.IsNullOrEmpty(networkAlertDetails.yourConnectionCompany))
+                                            {
+                                                connectionJobTitle += ", " + networkAlertDetails.yourConnectionCompany;
+                                            }
+                                            sharUpdateTemplate = sharUpdateTemplate.Replace(":YOUR_CONNECTION_JOB_TITLE", connectionJobTitle);
+
+                                            connectionProfilePicUrl = networkAlertDetails.yourConnectionProfilePicUrl;
+                                            if (!string.IsNullOrEmpty(connectionProfilePicUrl))
+                                            {
+                                                sharUpdateTemplate = sharUpdateTemplate.Replace("cid:yourConnectionProfilePicUrl", connectionProfilePicUrl);
+                                            }
+
+                                            sharUpdateTemplate = sharUpdateTemplate.Replace(":LINK_URL", networkAlertDetails.shortenedUrl);
+                                            sharUpdateTemplate = sharUpdateTemplate.Replace(":LINK_NAME", networkAlertDetails.shortenedUrl);
+
+                                            sharUpdateSection += sharUpdateTemplate;
+                                            break;
+
+                                        case "VIRL":
+                                            virlUpdateTemplate = Constants.VirlCommentedOrLiked;
+
+                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            virlUpdateTemplate = virlUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
+
+                                            connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
+
+                                            if (string.IsNullOrEmpty(connectionProfileUrl))
+                                            {
+                                                connectionProfileUrl = Constants.ConnectionLinkedInProfileUrl;
+
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":FIRST_NAME", networkAlertDetails.yourConnectionFirstName);
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":LAST_NAME", networkAlertDetails.yourConnectionLastName);
+                                            }
+                                            virlUpdateTemplate = virlUpdateTemplate.Replace(":YOUR_CONNECTION_PROFILE_URL", connectionProfileUrl);
+                                            
+                                            connectionJobTitle = networkAlertDetails.yourConnectionHeadline;
+                                            if (!string.IsNullOrEmpty(connectionJobTitle) && !string.IsNullOrEmpty(networkAlertDetails.yourConnectionCompany))
+                                            {
+                                                connectionJobTitle += ", " + networkAlertDetails.yourConnectionCompany;
+                                            }
+                                            virlUpdateTemplate = virlUpdateTemplate.Replace(":YOUR_CONNECTION_JOB_TITLE", connectionJobTitle);
+
+                                            connectionProfilePicUrl = networkAlertDetails.yourConnectionProfilePicUrl;
+                                            if (!string.IsNullOrEmpty(connectionProfilePicUrl))
+                                            {
+                                                virlUpdateTemplate = virlUpdateTemplate.Replace("cid:yourConnectionProfilePicUrl", connectionProfilePicUrl);
+                                            }
+
+
+                                            connectionToName = networkAlertDetails.connectedToFirstName +" "+ networkAlertDetails.connectedToLastName;
+                                            virlUpdateTemplate = virlUpdateTemplate.Replace(":UPDATED_BY_FULL_NAME", connectionToName);
+
+                                            connectionToProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
+
+                                            if (string.IsNullOrEmpty(connectionToProfileUrl))
+                                            {
+                                                connectionToProfileUrl = Constants.ConnectionLinkedInProfileUrl;
+
+                                                connectionToProfileUrl = connectionToProfileUrl.Replace(":FIRST_NAME", networkAlertDetails.yourConnectionFirstName);
+                                                connectionToProfileUrl = connectionToProfileUrl.Replace(":LAST_NAME", networkAlertDetails.yourConnectionLastName);
+                                            }
+                                            virlUpdateTemplate = virlUpdateTemplate.Replace(":UPDATED_BY_PROFILE_URL", connectionToProfileUrl);
+                                            
+                                            connectionToJobTitle = networkAlertDetails.connectedToHeadline;
+                                            if (!string.IsNullOrEmpty(connectionToJobTitle) && !string.IsNullOrEmpty(networkAlertDetails.connectedToCompany))
+                                            {
+                                                connectionToJobTitle += ", " + networkAlertDetails.connectedToCompany;
+                                            }
+                                            virlUpdateTemplate = virlUpdateTemplate.Replace(":UPDATED_BY_JOB_TITLE", connectionToJobTitle);
+
+                                            connectionToProfilePicUrl = networkAlertDetails.connectedToProfilePicUrl;
+                                            if (!string.IsNullOrEmpty(connectionToProfilePicUrl))
+                                            {
+                                                virlUpdateTemplate = virlUpdateTemplate.Replace("cid:connectedToProfilePicUrl", connectionToProfilePicUrl);
+                                            }
+
+                                            virlUpdateTemplate = virlUpdateTemplate.Replace(":COMMNT_OR_LIKED_URL", networkAlertDetails.shortenedUrl);
+                                            virlUpdateTemplate = virlUpdateTemplate.Replace(":COMMNT_OR_LIKED_TEXT", networkAlertDetails.comment);
+
+                                            virlUpdateSection += virlUpdateTemplate;
+
+                                            break;
+
+                                        case "JGRP":
+                                            jgrpUpdateTemplate = Constants.JgrpJoinedGroup;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            jgrpUpdateTemplate = jgrpUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
+
+                                            connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
+
+                                            if (string.IsNullOrEmpty(connectionProfileUrl))
+                                            {
+                                                connectionProfileUrl = Constants.ConnectionLinkedInProfileUrl;
+
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":FIRST_NAME", networkAlertDetails.yourConnectionFirstName);
+                                                connectionProfileUrl = connectionProfileUrl.Replace(":LAST_NAME", networkAlertDetails.yourConnectionLastName);
+                                            }
+                                            jgrpUpdateTemplate = jgrpUpdateTemplate.Replace(":YOUR_CONNECTION_PROFILE_URL", connectionProfileUrl);
+                                            
+                                            connectionJobTitle = networkAlertDetails.yourConnectionHeadline;
+                                            if (!string.IsNullOrEmpty(connectionJobTitle) && !string.IsNullOrEmpty(networkAlertDetails.yourConnectionCompany))
+                                            {
+                                                connectionJobTitle += ", " + networkAlertDetails.yourConnectionCompany;
+                                            }
+                                            jgrpUpdateTemplate = jgrpUpdateTemplate.Replace(":YOUR_CONNECTION_JOB_TITLE", connectionJobTitle);
+
+                                            connectionProfilePicUrl = networkAlertDetails.yourConnectionProfilePicUrl;
+                                            if (!string.IsNullOrEmpty(connectionProfilePicUrl))
+                                            {
+                                                jgrpUpdateTemplate = jgrpUpdateTemplate.Replace("cid:yourConnectionProfilePicUrl", connectionProfilePicUrl);
+                                            }
+
+                                            jgrpUpdateTemplate = jgrpUpdateTemplate.Replace(":GROUP_URL", networkAlertDetails.shortenedUrl);
+                                            jgrpUpdateTemplate = jgrpUpdateTemplate.Replace(":GROUP_NAME", networkAlertDetails.groupName);
+
+                                            jgrpUpdateSection += jgrpUpdateTemplate;
+                                            break;
+                                        
+                                    }
+                                }
+                            }
+
+                            this.allOtherTypeNetworkUpdatesSection.Append(headingSection);
+                            this.allOtherTypeNetworkUpdatesSection.Append(cmpyStatusUpdateSection);
+                            this.allOtherTypeNetworkUpdatesSection.Append(cmpyJobChangeSection);
+                            this.allOtherTypeNetworkUpdatesSection.Append(picuUpdateSection);
+                            this.allOtherTypeNetworkUpdatesSection.Append(profUpdateSection);
+                            this.allOtherTypeNetworkUpdatesSection.Append(prfxUpdateSection);
+                            this.allOtherTypeNetworkUpdatesSection.Append(precUpdateSection);
+                            this.allOtherTypeNetworkUpdatesSection.Append(sharUpdateSection);
+                            this.allOtherTypeNetworkUpdatesSection.Append(virlUpdateSection);
+                            this.allOtherTypeNetworkUpdatesSection.Append(jgrpUpdateSection); 
+
+                        }
+                    }
+
+                    isUpdatedNetworkFound = true;
+                }
+            }
+
+            return isUpdatedNetworkFound;
         }
 
         /// <summary>

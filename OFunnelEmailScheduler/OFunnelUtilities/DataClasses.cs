@@ -139,9 +139,17 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
     public class NetworkUpdates
     {
         public NetworkAlertsForAlertType[] networkAlertsForAlertType { get; set; }
+
+        public NetworkAlertsForOtherUpdateType[] networkAlertsForOtherUpdateType { get; set; }
     }
 
     public class NetworkAlertsForAlertType
+    {
+        public string alertType { get; set; }
+        public NetworkAlerts[] networkAlerts { get; set; }
+    }
+
+    public class NetworkAlertsForOtherUpdateType
     {
         public string alertType { get; set; }
         public NetworkAlerts[] networkAlerts { get; set; }
@@ -176,8 +184,15 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         public string connectedToProfilePicUrl { get; set; }
         public string connectedToHeadline { get; set; }
         public string connectedToCompany { get; set; }
-    }
 
+        public string updateType { get; set; }
+        public string groupName { get; set; }
+        public string shortenedUrl { get; set; }
+        public string jobTitle { get; set; }
+        public string companyName { get; set; }
+        public string comment { get; set; }
+    }
+    
     public class CompanySearchData
     {
         public string companyNameToSearch { get; set; }
@@ -190,11 +205,6 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         public List<CompanySearchData> companySearchDataList { get; set; }
         public List<string> accessTokenList { get; set; }
     }
-
-
-
-
-
 
 
     public class TwitterLeads

@@ -807,6 +807,17 @@ namespace OFunnelEmailScheduler
                     HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkUpdateEmail: No network update found for userId = {0}, userName = {1}.", userId, userName));
                 }
 
+                if (networkUpdates != null && networkUpdates.networkAlertsForOtherUpdateType != null && networkUpdates.networkAlertsForOtherUpdateType.Length > 0)
+                {
+                    HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkUpdateEmail: Daily netwrok update & twitter lead email for network updates (Network update count {0}) sending to {1} at EmailId: {2}.", networkUpdates.networkAlertsForAlertType.Length, userName, toEmail));
+
+                    isNetworkUpdateFound = emailService.CreateAllOtherTypeNetworkUpdateSectionForEmailTemplate(networkUpdates.networkAlertsForOtherUpdateType);
+                }
+                else
+                {
+                    HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkUpdateEmail: No network update found for userId = {0}, userName = {1}.", userId, userName));
+                }
+
                 bool isTwitterLeadFound = false;
 
                 TwitterLeads twitterLeads = this.GetTwitterLeadDetailForUserId(userId);
@@ -832,17 +843,9 @@ namespace OFunnelEmailScheduler
 
                     bool isMailSend = false;
 
-                    if (oFunnelUser.accountType.ToUpper() == "PIPELINEUSER")
-                    {
-                        netwrokUpdateAlertEmailSubject = Constants.NetwrokUpdateAlertEmailSubjectForPipelineUser;
-                        isMailSend = emailService.SendMailToAllUsers(toEmails, recipientEmails, null, netwrokUpdateAlertEmailSubject, EmailType.NetwrokUpdateAlertEmailForPipelineUser);
-                    }
-                    else
-                    {
-                        netwrokUpdateAlertEmailSubject = Constants.NetwrokUpdateAlertEmailSubject;
-                        isMailSend = emailService.SendMailToAllUsers(toEmails, recipientEmails, null, netwrokUpdateAlertEmailSubject, EmailType.NetwrokUpdateAlertEmail);
-                    }
-
+                    netwrokUpdateAlertEmailSubject = Constants.NetwrokUpdateAlertEmailSubject;
+                    isMailSend = emailService.SendMailToAllUsers(toEmails, recipientEmails, null, netwrokUpdateAlertEmailSubject, EmailType.NetwrokUpdateAlertEmail);
+                    
                     if (isMailSend)
                     {
                         HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkUpdateEmail: Daily network update email for network update and twitter leads sends sucessfully to {0} at EmailId: {1}.\n\n", userName, toEmail));
@@ -1154,95 +1157,185 @@ namespace OFunnelEmailScheduler
                     OFunnelDatabaseHandler databaseHandler = new OFunnelDatabaseHandler();
                     DataSet dataSet = databaseHandler.GetNetworkUpdateDetailForUserId("'" + userId + "'");
 
-                    if (HelperMethods.IsValidDataSet(dataSet))
+                    if (dataSet != null && dataSet.Tables.Count > 0)
                     {
                         NetworkAlertDetails networkAlertDetails = null;
                         List<NetworkAlertDetails> networkAlertDetailsList = new List<NetworkAlertDetails>();
 
-                        for (int i = 0; i < dataSet.Tables[0].Rows.Count; i++)
+                        if (dataSet.Tables[0].Rows.Count > 0)
                         {
-                            networkAlertDetails = new NetworkAlertDetails();
-
-                            networkAlertDetails.networkUpdateId = Convert.ToString(dataSet.Tables[0].Rows[i]["id"]);
-                            
-                            networkAlertDetails.yourConnectionLinkedInId = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionLinkedInId"]);
-                            networkAlertDetails.yourConnectionFirstName = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionFirstName"]);
-                            networkAlertDetails.yourConnectionLastName = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionLastName"]);
-                            networkAlertDetails.yourConnectionProfileUrl = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionProfileUrl"]);
-                            networkAlertDetails.yourConnectionProfilePicUrl = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionProfilePicUrl"]);
-                            networkAlertDetails.yourConnectionHeadline = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionHeadline"]);
-                            networkAlertDetails.yourConnectionCompany = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionCompany"]);
-
-                            networkAlertDetails.connectedToLinkedInId = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToLinkedInId"]);
-                            networkAlertDetails.connectedToFirstName = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToFirstName"]);
-                            networkAlertDetails.connectedToLastName = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToLastName"]);
-                            networkAlertDetails.connectedToProfileUrl = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToProfileUrl"]);
-                            networkAlertDetails.connectedToProfilePicUrl = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToProfilePicUrl"]);
-                            networkAlertDetails.connectedToHeadline = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToHeadline"]);
-                            networkAlertDetails.connectedToCompany = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToCompany"]);
-
-                            networkAlertDetails.filterType = Convert.ToString(dataSet.Tables[0].Rows[i]["filterType"]);
-                            networkAlertDetails.targetName = Convert.ToString(dataSet.Tables[0].Rows[i]["targetName"]);
-
-                            string filterType = Convert.ToString(dataSet.Tables[0].Rows[i]["filterType"]);
-
-                            if (string.IsNullOrEmpty(networkAlertDetails.connectedToLinkedInId) && filterType.ToUpper().Equals("COMPANY"))
+                            for (int i = 0; i < dataSet.Tables[0].Rows.Count; i++)
                             {
-                                networkAlertDetails.alertType = "POSITION";
-                            }
-                            else if (string.IsNullOrEmpty(networkAlertDetails.connectedToLinkedInId) && filterType.ToUpper().Equals("ROLE"))
-                            {
-                                networkAlertDetails.alertType = "POSITIONROLE";
-                            }
-                            else if (string.IsNullOrEmpty(networkAlertDetails.connectedToLinkedInId) && filterType.ToUpper().Equals("PERSON"))
-                            {
-                                networkAlertDetails.alertType = "POSITIONPERSON";
-                            }
-                            else
-                            {
-                                networkAlertDetails.alertType = filterType;
-                            }
+                                networkAlertDetails = new NetworkAlertDetails();
 
-                            networkAlertDetailsList.Add(networkAlertDetails);
-                        }
+                                networkAlertDetails.networkUpdateId = Convert.ToString(dataSet.Tables[0].Rows[i]["id"]);
 
-                        if (networkAlertDetailsList != null && networkAlertDetailsList.Count > 0)
-                        {
-                            List<NetworkAlertsForAlertType> networkAlertsForAlertTypeList = new List<NetworkAlertsForAlertType>();
+                                networkAlertDetails.yourConnectionLinkedInId = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionLinkedInId"]);
+                                networkAlertDetails.yourConnectionFirstName = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionFirstName"]);
+                                networkAlertDetails.yourConnectionLastName = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionLastName"]);
+                                networkAlertDetails.yourConnectionProfileUrl = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionProfileUrl"]);
+                                networkAlertDetails.yourConnectionProfilePicUrl = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionProfilePicUrl"]);
+                                networkAlertDetails.yourConnectionHeadline = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionHeadline"]);
+                                networkAlertDetails.yourConnectionCompany = Convert.ToString(dataSet.Tables[0].Rows[i]["yourConnectionCompany"]);
 
-                            var groupByAlertTypeNetworkAlerts = networkAlertDetailsList.GroupBy(g => g.alertType);
-                            foreach (var networkAlertAlertTypeGroup in groupByAlertTypeNetworkAlerts)
-                            {
-                                if (networkAlertAlertTypeGroup.Count() > 0)
+                                networkAlertDetails.connectedToLinkedInId = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToLinkedInId"]);
+                                networkAlertDetails.connectedToFirstName = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToFirstName"]);
+                                networkAlertDetails.connectedToLastName = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToLastName"]);
+                                networkAlertDetails.connectedToProfileUrl = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToProfileUrl"]);
+                                networkAlertDetails.connectedToProfilePicUrl = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToProfilePicUrl"]);
+                                networkAlertDetails.connectedToHeadline = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToHeadline"]);
+                                networkAlertDetails.connectedToCompany = Convert.ToString(dataSet.Tables[0].Rows[i]["connectedToCompany"]);
+
+                                networkAlertDetails.filterType = Convert.ToString(dataSet.Tables[0].Rows[i]["filterType"]);
+                                networkAlertDetails.targetName = Convert.ToString(dataSet.Tables[0].Rows[i]["targetName"]);
+
+                                string filterType = Convert.ToString(dataSet.Tables[0].Rows[i]["filterType"]);
+
+                                if (string.IsNullOrEmpty(networkAlertDetails.connectedToLinkedInId) && filterType.ToUpper().Equals("COMPANY"))
                                 {
-                                    NetworkAlertsForAlertType networkAlertsForAlertType = new NetworkAlertsForAlertType();
-                                    
-                                    List<NetworkAlerts> networkAlertsList = new List<NetworkAlerts>();
+                                    networkAlertDetails.alertType = "POSITION";
+                                }
+                                else if (string.IsNullOrEmpty(networkAlertDetails.connectedToLinkedInId) && filterType.ToUpper().Equals("ROLE"))
+                                {
+                                    networkAlertDetails.alertType = "POSITIONROLE";
+                                }
+                                else if (string.IsNullOrEmpty(networkAlertDetails.connectedToLinkedInId) && filterType.ToUpper().Equals("PERSON"))
+                                {
+                                    networkAlertDetails.alertType = "POSITIONPERSON";
+                                }
+                                else
+                                {
+                                    networkAlertDetails.alertType = filterType;
+                                }
 
-                                    var groupByTargetNameNetworkAlerts = networkAlertAlertTypeGroup.GroupBy(g => g.targetName);
+                                networkAlertDetailsList.Add(networkAlertDetails);
+                            }
 
-                                    foreach (var networkAlertTargetNameGroup in groupByTargetNameNetworkAlerts)
+                            if (networkAlertDetailsList != null && networkAlertDetailsList.Count > 0)
+                            {
+                                List<NetworkAlertsForAlertType> networkAlertsForAlertTypeList = new List<NetworkAlertsForAlertType>();
+
+                                var groupByAlertTypeNetworkAlerts = networkAlertDetailsList.GroupBy(g => g.alertType);
+                                foreach (var networkAlertAlertTypeGroup in groupByAlertTypeNetworkAlerts)
+                                {
+                                    if (networkAlertAlertTypeGroup.Count() > 0)
                                     {
-                                        NetworkAlerts networkAlerts = new NetworkAlerts();
+                                        NetworkAlertsForAlertType networkAlertsForAlertType = new NetworkAlertsForAlertType();
 
-                                        if (networkAlertTargetNameGroup.Count() > 0)
+                                        List<NetworkAlerts> networkAlertsList = new List<NetworkAlerts>();
+
+                                        var groupByTargetNameNetworkAlerts = networkAlertAlertTypeGroup.GroupBy(g => g.targetName);
+
+                                        foreach (var networkAlertTargetNameGroup in groupByTargetNameNetworkAlerts)
                                         {
-                                            networkAlerts.networkAlertDetails = networkAlertTargetNameGroup.ToArray();
+                                            NetworkAlerts networkAlerts = new NetworkAlerts();
 
-                                            networkAlertsForAlertType.alertType = networkAlerts.networkAlertDetails.ElementAt(0).alertType;
-                                            networkAlerts.targetName = networkAlerts.networkAlertDetails.ElementAt(0).targetName;
+                                            if (networkAlertTargetNameGroup.Count() > 0)
+                                            {
+                                                networkAlerts.networkAlertDetails = networkAlertTargetNameGroup.ToArray();
+
+                                                networkAlertsForAlertType.alertType = networkAlerts.networkAlertDetails.ElementAt(0).alertType;
+                                                networkAlerts.targetName = networkAlerts.networkAlertDetails.ElementAt(0).targetName;
+                                            }
+
+                                            networkAlertsList.Add(networkAlerts);
                                         }
 
-                                        networkAlertsList.Add(networkAlerts);
+                                        networkAlertsForAlertType.networkAlerts = networkAlertsList.ToArray();
+
+                                        networkAlertsForAlertTypeList.Add(networkAlertsForAlertType);
                                     }
-
-                                    networkAlertsForAlertType.networkAlerts = networkAlertsList.ToArray();
-
-                                    networkAlertsForAlertTypeList.Add(networkAlertsForAlertType);
                                 }
+
+                                networkUpdates.networkAlertsForAlertType = networkAlertsForAlertTypeList.ToArray();
+                            }
+                        }
+
+                        List<NetworkAlertDetails> networkAlertDetailsForOtherNetworkUpdateList = new List<NetworkAlertDetails>();
+
+                        // Creating data for All other type of Network updates like CMPY, JGRP, SHAR, PICU, PROF, PREC, VIRL
+                        if (dataSet.Tables[1].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dataSet.Tables[1].Rows.Count; i++)
+                            {
+                                networkAlertDetails = new NetworkAlertDetails();
+
+                                networkAlertDetails.networkUpdateId = Convert.ToString(dataSet.Tables[1].Rows[i]["id"]);
+
+                                networkAlertDetails.yourConnectionLinkedInId = Convert.ToString(dataSet.Tables[1].Rows[i]["yourConnectionLinkedInId"]);
+                                networkAlertDetails.yourConnectionFirstName = Convert.ToString(dataSet.Tables[1].Rows[i]["yourConnectionFirstName"]);
+                                networkAlertDetails.yourConnectionLastName = Convert.ToString(dataSet.Tables[1].Rows[i]["yourConnectionLastName"]);
+                                networkAlertDetails.yourConnectionProfileUrl = Convert.ToString(dataSet.Tables[1].Rows[i]["yourConnectionProfileUrl"]);
+                                networkAlertDetails.yourConnectionProfilePicUrl = Convert.ToString(dataSet.Tables[1].Rows[i]["yourConnectionProfilePicUrl"]);
+                                networkAlertDetails.yourConnectionHeadline = Convert.ToString(dataSet.Tables[1].Rows[i]["yourConnectionHeadline"]);
+                                networkAlertDetails.yourConnectionCompany = Convert.ToString(dataSet.Tables[1].Rows[i]["yourConnectionCompany"]);
+
+                                networkAlertDetails.connectedToLinkedInId = Convert.ToString(dataSet.Tables[1].Rows[i]["connectedToLinkedInId"]);
+                                networkAlertDetails.connectedToFirstName = Convert.ToString(dataSet.Tables[1].Rows[i]["connectedToFirstName"]);
+                                networkAlertDetails.connectedToLastName = Convert.ToString(dataSet.Tables[1].Rows[i]["connectedToLastName"]);
+                                networkAlertDetails.connectedToProfileUrl = Convert.ToString(dataSet.Tables[1].Rows[i]["connectedToProfileUrl"]);
+                                networkAlertDetails.connectedToProfilePicUrl = Convert.ToString(dataSet.Tables[1].Rows[i]["connectedToProfilePicUrl"]);
+                                networkAlertDetails.connectedToHeadline = Convert.ToString(dataSet.Tables[1].Rows[i]["connectedToHeadline"]);
+                                networkAlertDetails.connectedToCompany = Convert.ToString(dataSet.Tables[1].Rows[i]["connectedToCompany"]);
+
+                                networkAlertDetails.updateType = Convert.ToString(dataSet.Tables[1].Rows[i]["updateType"]);
+                                networkAlertDetails.groupName = Convert.ToString(dataSet.Tables[1].Rows[i]["groupName"]);
+                                networkAlertDetails.shortenedUrl = Convert.ToString(dataSet.Tables[1].Rows[i]["shortenedUrl"]);
+                                networkAlertDetails.jobTitle = Convert.ToString(dataSet.Tables[1].Rows[i]["jobTitle"]);
+                                networkAlertDetails.companyName = Convert.ToString(dataSet.Tables[1].Rows[i]["companyName"]);
+                                networkAlertDetails.comment = Convert.ToString(dataSet.Tables[1].Rows[i]["comment"]);
+
+                                networkAlertDetails.filterType = Convert.ToString(dataSet.Tables[1].Rows[i]["filterType"]);
+                                networkAlertDetails.targetName = Convert.ToString(dataSet.Tables[1].Rows[i]["targetName"]);
+
+                                string filterType = Convert.ToString(dataSet.Tables[1].Rows[i]["filterType"]);
+                                networkAlertDetails.alertType = filterType;
+
+                                networkAlertDetailsForOtherNetworkUpdateList.Add(networkAlertDetails);
                             }
 
-                            networkUpdates.networkAlertsForAlertType = networkAlertsForAlertTypeList.ToArray();
+                            if (networkAlertDetailsForOtherNetworkUpdateList != null && networkAlertDetailsForOtherNetworkUpdateList.Count > 0)
+                            {
+                                List<NetworkAlertsForOtherUpdateType> networkAlertsForOtherUpdateTypeList = new List<NetworkAlertsForOtherUpdateType>();
+
+                                var groupByAlertTypeNetworkAlerts = networkAlertDetailsForOtherNetworkUpdateList.GroupBy(g => g.alertType);
+                                foreach (var networkAlertAlertTypeGroup in groupByAlertTypeNetworkAlerts)
+                                {
+                                    if (networkAlertAlertTypeGroup.Count() > 0)
+                                    {
+                                        NetworkAlertsForOtherUpdateType networkAlertsForOtherUpdateType = new NetworkAlertsForOtherUpdateType();
+
+                                        List<NetworkAlerts> networkAlertsList = new List<NetworkAlerts>();
+
+                                        var groupByTargetNameNetworkAlerts = networkAlertAlertTypeGroup.GroupBy(g => g.targetName);
+
+                                        foreach (var networkAlertTargetNameGroup in groupByTargetNameNetworkAlerts)
+                                        {
+                                            NetworkAlerts networkAlerts = new NetworkAlerts();
+
+                                            if (networkAlertTargetNameGroup.Count() > 0)
+                                            {
+                                                networkAlerts.networkAlertDetails = networkAlertTargetNameGroup.ToArray();
+
+                                                networkAlertsForOtherUpdateType.alertType = networkAlerts.networkAlertDetails.ElementAt(0).alertType;
+                                                networkAlerts.targetName = networkAlerts.networkAlertDetails.ElementAt(0).targetName;
+                                            }
+
+                                            networkAlertsList.Add(networkAlerts);
+                                        }
+
+                                        networkAlertsForOtherUpdateType.networkAlerts = networkAlertsList.ToArray();
+
+                                        networkAlertsForOtherUpdateTypeList.Add(networkAlertsForOtherUpdateType);
+                                    }
+                                }
+
+                                networkUpdates.networkAlertsForOtherUpdateType = networkAlertsForOtherUpdateTypeList.ToArray();
+                            }
+                        }
+                        else
+                        {
+                            HelperMethods.AddLogs("GetNetworkUpdateDetailForUserId: Network updates for CMPY, JGRP, SHAR, PICU, PROF, PREC and VIRL is not found.");
                         }
                     }
                     else
