@@ -79,7 +79,7 @@ namespace OFunnelEmailScheduler
             }
 
             bool isThreadLimitSet = ThreadPool.SetMaxThreads(workerThreads, completionPortThreads);
-            HelperMethods.AddLogs("EmailSchedulerService: Thread limit set status => isThreadLimitSet = " + isThreadLimitSet);
+            HelperMethods.AddLogs("EmailSchedulerService: Thread limit set status => isThreadLimitSet = " + isThreadLimitSet);  
         }
 
         /// <summary>
@@ -825,7 +825,7 @@ namespace OFunnelEmailScheduler
                 {
                     HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendNetworkUpdateEmail: Daily netwrok update & twitter lead  email for twitter lead (Twiter leads count {0}) sending to {1} at EmailId: {2}.", twitterLeads.twitterLeadsForAlertType.Length, userName, toEmail));
 
-                    isTwitterLeadFound = emailService.CreateTwitterLeadSectionForEmailTemplate(twitterLeads.twitterLeadsForAlertType);
+                    isTwitterLeadFound = emailService.CreateTwitterLeadSectionForEmailTemplate(twitterLeads.twitterLeadsForAlertType, userId);
                 }
                 else
                 {
@@ -2859,7 +2859,7 @@ namespace OFunnelEmailScheduler
                 {
                     HelperMethods.AddLogs(string.Format("ThreadPoolCallbackToSendFollowUpNetworkUpdateEmail: Daily twitter lead followup email for (Twiter leads count {0}) sending to {1} at EmailId: {2}.", twitterLeads.twitterLeadsForAlertType.Length, userName, toEmail));
 
-                    isTwitterLeadFound = emailService.CreateTwitterLeadSectionForEmailTemplate(twitterLeads.twitterLeadsForAlertType);
+                    isTwitterLeadFound = emailService.CreateTwitterLeadSectionForEmailTemplate(twitterLeads.twitterLeadsForAlertType, userId);
                 }
                 else
                 {

@@ -556,6 +556,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                 mailBody = mailBody.Replace(":ALL_OTHER_NETWORK_UPDATE_SECTION", string.Empty);
             }
 
+            HelperMethods.AddLogs(string.Format("CreateAlternateViewForNetworkUpdateAlertEmail: Twitter lead data for userId = {0}, Lead Data = {1}.", nameValues["userId"], Convert.ToString(twitterAllLeadSection)));
 
             string twitterLeadDetails = Convert.ToString(twitterAllLeadSection);
             mailBody = mailBody.Replace(":TWITTER_LEAD_DETAILS", twitterLeadDetails);
@@ -1061,7 +1062,14 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                         foreach (NetworkAlerts networkAlert in networkAlertsForAlertType.networkAlerts)
                         {
                             networkUpdateHeading = networkAlert.targetName;
-                            networkUpdateHeading = Constants.TargetKeyword + networkUpdateHeading;
+                            if (alertType.ToUpper() == "PERSON")
+                            {
+                                networkUpdateHeading = Constants.TargetPerson + networkUpdateHeading;
+                            }
+                            else
+                            {
+                                networkUpdateHeading = Constants.TargetKeyword + networkUpdateHeading;
+                            }
 
                             string headingSection = Constants.TargetHeadingName;
 
@@ -1450,9 +1458,11 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         /// This method creates Twitter lead section for Twitter Lead email Templates.
         /// </summary>
         /// <param name="openRequestDetails"></param>
-        public bool CreateTwitterLeadSectionForEmailTemplate(TwitterLeadsForAlertType[] twitterLeadsForAlertTypeArray)
+        public bool CreateTwitterLeadSectionForEmailTemplate(TwitterLeadsForAlertType[] twitterLeadsForAlertTypeArray, string userId)
         {
             bool isTwitterLeadFound = false;
+
+            HelperMethods.AddLogs("Enter in CreateTwitterLeadSectionForEmailTemplate. for userId=" + userId);
 
             if (twitterLeadsForAlertTypeArray != null && twitterLeadsForAlertTypeArray.Length > 0)
             {
@@ -1519,7 +1529,11 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                         }
                     }
                 }
+
+                HelperMethods.AddLogs(string.Format("CreateTwitterLeadSectionForEmailTemplate. Twitter lead HTML template data for userId- {0}, twitterAllLeadSection- {1}", userId, Convert.ToString(this.twitterAllLeadSection)));
             }
+
+            HelperMethods.AddLogs("Exit from CreateTwitterLeadSectionForEmailTemplate. for userId=" + userId);
 
             return isTwitterLeadFound;
         }
