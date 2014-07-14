@@ -1135,7 +1135,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
 
                                         case "PICU":
                                             picuUpdateTemplate = Constants.PicuProfilePicChange;
-                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName + " " + networkAlertDetails.yourConnectionLastName;
                                             picuUpdateTemplate = picuUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
 
                                             connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
@@ -1170,7 +1170,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
 
                                         case "PROF":
                                             profUpdateTemplate = Constants.ProfProfileChange;
-                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName + " " + networkAlertDetails.yourConnectionLastName;
                                             profUpdateTemplate = profUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
 
                                             connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
@@ -1202,7 +1202,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
 
                                         case "PRFX":
                                             prfxUpdateTemplate = Constants.PrfxExtendedProfileChange;
-                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName + " " + networkAlertDetails.yourConnectionLastName;
                                             prfxUpdateTemplate = prfxUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
 
                                             connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
@@ -1236,7 +1236,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                                             
                                             precUpdateTemplate = Constants.PrecRecommendation;
 
-                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName + " " + networkAlertDetails.yourConnectionLastName;
                                             precUpdateTemplate = precUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
 
                                             connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
@@ -1296,7 +1296,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                                             
                                         case "SHAR":
                                             sharUpdateTemplate = Constants.SharConnectionSharedLink;
-                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName + " " + networkAlertDetails.yourConnectionLastName;
                                             sharUpdateTemplate = sharUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
 
                                             connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
@@ -1332,7 +1332,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
                                         case "VIRL":
                                             virlUpdateTemplate = Constants.VirlCommentedOrLiked;
 
-                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName + " " + networkAlertDetails.yourConnectionLastName;
                                             virlUpdateTemplate = virlUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
 
                                             connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
@@ -1396,7 +1396,7 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
 
                                         case "JGRP":
                                             jgrpUpdateTemplate = Constants.JgrpJoinedGroup;
-                                            connectionName = networkAlertDetails.yourConnectionFirstName +" "+ networkAlertDetails.yourConnectionFirstName;
+                                            connectionName = networkAlertDetails.yourConnectionFirstName + " " + networkAlertDetails.yourConnectionLastName;
                                             jgrpUpdateTemplate = jgrpUpdateTemplate.Replace(":YOUR_CONNECTION_FULL_NAME", connectionName);
 
                                             connectionProfileUrl = networkAlertDetails.yourConnectionProfileUrl;
