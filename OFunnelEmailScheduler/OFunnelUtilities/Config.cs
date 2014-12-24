@@ -58,11 +58,11 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
 
 #elif PRODUCTION_SERVER 
         // Database config parameters for Production server
-        public const string OFunnelDbConnection = "Data Source=ofunnelservice.cloudapp.net; Initial Catalog=OFunnel; User ID=kushal; Password=q1w2e3r4!";
+        public const string OFunnelDbConnection = "Data Source=ec2-54-161-230-145.compute-1.amazonaws.com; Initial Catalog=OFunnel; User ID=kushal; Password=q1w2e3r4!";
 
 #endif
 
-#if STAGING_SERVER 
+#if STAGING_SERVER
         // OFunnel Staging Server related URls
         public const string SeeAllRequestUrl = "http://ofunnelfrontqa.cloudapp.net:4321/requests";
         public const string SeeParticularRequestUrl = "http://ofunnelfrontqa.cloudapp.net:4321/requests#:REQUESTID";
@@ -80,8 +80,8 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
         public const string OfunnelLoginUrl = "http://beta.ofunnel.com/linkedin/authorize_with_likedin";
         public const string UpgradeYourAcount = "http://beta.ofunnel.com/notifications";
         public const string UnsubscribeFromAlertsUrl = "http://beta.ofunnel.com/unsubscribe/:USER_ID";
-        public const string GetMoreDataUrl = "http://ofunnelservice.cloudapp.net/ofunnelservice/GetMoreData.aspx?userid=:USER_IDS&yourconnection=:YOUR_CONNECTION&connectedto=:CONNECTED_TO&id=:NETWORK_UPDATE_ID";
-        public const string GetMoreDataForTwitterLeadUrl = "http://ofunnelservice.cloudapp.net/ofunnelservice/GetMoreData.aspx?userid=:USER_IDS&handle=:TWITTER_HANDLE&leadid=:LEAD_ID";
+        public const string GetMoreDataUrl = "http://ec2-54-161-230-145.compute-1.amazonaws.com/ofunnelservice/GetMoreData.aspx?userid=:USER_IDS&yourconnection=:YOUR_CONNECTION&connectedto=:CONNECTED_TO&id=:NETWORK_UPDATE_ID";
+        public const string GetMoreDataForTwitterLeadUrl = "http://ec2-54-161-230-145.compute-1.amazonaws.com/ofunnelservice/GetMoreData.aspx?userid=:USER_IDS&handle=:TWITTER_HANDLE&leadid=:LEAD_ID";
 #endif
         ////////OFunnel Backend Service URL /////////////////
 
@@ -93,15 +93,15 @@ namespace OFunnelEmailScheduler.OFunnelUtilities
 
 #elif PRODUCTION_SERVER 
         // Production Server Url.
-        public const string SimilarCompaniesUrl = "http://ofunnelservice.cloudapp.net/OFunnelService/UserService.svc/CheckForSimilarCompaniesForTargetAccounts/:USER_ID";
-        public const string CheckForServerStatus = "http://ofunnelservice.cloudapp.net/OFunnelService/NotificationService.svc/CheckServerStatus";
-        public const string SendPushNotificationUrl = "http://ofunnelservice.cloudapp.net/OFunnelService/NotificationService.svc/postNotificationToWns?userId=:USER_ID&channelUrl=:CHANNEL_URL";
+        public const string SimilarCompaniesUrl = "http://ec2-54-161-230-145.compute-1.amazonaws.com/OFunnelService/UserService.svc/CheckForSimilarCompaniesForTargetAccounts/:USER_ID";
+        public const string CheckForServerStatus = "http://ec2-54-161-230-145.compute-1.amazonaws.com/OFunnelService/NotificationService.svc/CheckServerStatus";
+        public const string SendPushNotificationUrl = "http://ec2-54-161-230-145.compute-1.amazonaws.com/OFunnelService/NotificationService.svc/postNotificationToWns?userId=:USER_ID&channelUrl=:CHANNEL_URL";
 
 #elif DEMO_SERVER 
         // Demo Server Url.
-        public const string SimilarCompaniesUrl = "http://ofunnelservice.cloudapp.net/OFunnelServiceDemo/UserService.svc/CheckForSimilarCompaniesForTargetAccounts/:USER_ID";
-        public const string CheckForServerStatus = "http://ofunnelservice.cloudapp.net/OFunnelServiceDemo/NotificationService.svc/CheckServerStatus";
-        public const string SendPushNotificationUrl = "http://ofunnelservice.cloudapp.net/OFunnelServiceDemo/NotificationService.svc/postNotificationToWns?userId=:USER_ID&channelUrl=:CHANNEL_URL";
+        public const string SimilarCompaniesUrl = "http://ec2-54-161-230-145.compute-1.amazonaws.com/OFunnelServiceDemo/UserService.svc/CheckForSimilarCompaniesForTargetAccounts/:USER_ID";
+        public const string CheckForServerStatus = "http://ec2-54-161-230-145.compute-1.amazonaws.com/OFunnelServiceDemo/NotificationService.svc/CheckServerStatus";
+        public const string SendPushNotificationUrl = "http://ec2-54-161-230-145.compute-1.amazonaws.com/OFunnelServiceDemo/NotificationService.svc/postNotificationToWns?userId=:USER_ID&channelUrl=:CHANNEL_URL";
 #endif
 
 #if STAGING_SERVER
